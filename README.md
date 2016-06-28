@@ -41,10 +41,11 @@ To use with maven:
 		    Login login = ScreenObjectFactory.createPage(Login.class, driver);
 		}
 		
+	
 		
-		@IdentifyBy(
-		{	@FindBy(text=">> Welcome to the best known public AS/400| <<",row=1)	}
-)
+	@IdentifyBy(
+	   {	@FindBy(text=">> Welcome to the best known public AS/400| <<",row=1)	}
+        )
 
     @Data
     public class Login {
