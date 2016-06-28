@@ -22,11 +22,19 @@
       <scope>test</scope>
     </dependency>
 	<dependency>
+    	<groupId>tn5250j</groupId>
+	    <artifactId>tn5250j</artifactId>
+    	<version>0.7.6</version>
+    	<scope>system</scope>
+	    <systemPath>${project.basedir}/lib/tn5250j.jar</systemPath>
+	</dependency>
+	<dependency>
 		<groupId>org.projectlombok</groupId>
 		<artifactId>lombok</artifactId>
 		<version>1.16.8</version>
 		<scope>provided</scope>
 	</dependency>    
+	
   </dependencies>
  
 </project>
