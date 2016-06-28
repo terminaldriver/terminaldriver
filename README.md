@@ -28,7 +28,7 @@ To use with maven:
   Use lombok (optional) to reduce the amount of boiler plate.
   
   
-  Example code:
+  Example Test code:
   
     @Test
      public void testApp() throws Exception
@@ -41,7 +41,7 @@ To use with maven:
 		    Login login = ScreenObjectFactory.createPage(Login.class, driver);
 		}
 		
-	
+Example Page Object:	
 		
 	@IdentifyBy(
 	   {	@FindBy(text=">> Welcome to the best known public AS/400| <<",row=1)	}
