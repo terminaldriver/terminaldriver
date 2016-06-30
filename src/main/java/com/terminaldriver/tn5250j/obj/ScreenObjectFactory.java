@@ -31,11 +31,12 @@ public class ScreenObjectFactory {
 		initElements(object,driver);
 		return object;
 	}
-	public static void initElements(Object page, TerminalDriver driver){
+	public static boolean initElements(Object page, TerminalDriver driver){
 		final Screen5250 screen = driver.getSession().getScreen();
 		final Class<?> clazz = page.getClass();
 		assertScreen(clazz,driver);
 		final Field[] fields = clazz.getDeclaredFields();
+		boolean foundAll=true;
 		List<org.tn5250j.framework.tn5250.ScreenField> screenFields = Arrays.asList(screen.getScreenFields().getFields());
 		ScreenElement currentScreenField=null;
 	    for (Field field : fields) {
@@ -49,6 +50,8 @@ public class ScreenObjectFactory {
 	        	  if(newScreenField != null){
 	        		  field.set(page, newScreenField);
 	        		  currentScreenField=newScreenField;
+	        	  }else{
+	        		  foundAll=false;
 	        	  }
 	           } catch (Exception e) {
 	        	   e.printStackTrace();
@@ -68,6 +71,7 @@ public class ScreenObjectFactory {
 				e.printStackTrace();
 			}
 	    } 
+	    return foundAll;
 	}
 
 	private static ScreenElement applyFind(Class<?> targetClazz, Screen5250 screen, FindBy info, List<org.tn5250j.framework.tn5250.ScreenField> screenFields, ScreenElement currentScreenField) {

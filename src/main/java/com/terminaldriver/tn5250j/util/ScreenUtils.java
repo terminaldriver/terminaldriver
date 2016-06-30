@@ -33,7 +33,7 @@ public class ScreenUtils {
 		}
 	}
 
-	private static FindBy checkScreen(final Class<?> clazz, final TerminalDriver driver) {
+	public static FindBy checkScreen(final Class<?> clazz, final TerminalDriver driver) {
 		final Screen5250 screen = driver.getSession().getScreen();
 		final IdentifyBy info = clazz.getAnnotation(IdentifyBy.class);
 		if (info == null) {

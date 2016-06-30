@@ -99,12 +99,47 @@ public class TerminalDriver {
 		session.disconnect();
 	}
 	
-	public void waitForScreen(long timeOutMillis){
+	public boolean waitForScreen(long timeOutMillis){
 		final long screenChange = terminalDriverScreenListener.getLastScreenChange();
 		final long stopTime = System.currentTimeMillis() + timeOutMillis;
 		while(screenChange == terminalDriverScreenListener.getLastScreenChange() && System.currentTimeMillis() < stopTime){
 			sleep(100);
 		}
+		sleep(50);
+		return System.currentTimeMillis() < stopTime;
+	}
+	public boolean waitForUpdate(long timeOutMillis){
+		terminalDriverScreenListener.markUpdate();
+		final long stopTime = System.currentTimeMillis() + timeOutMillis;
+		boolean isChanged = terminalDriverScreenListener.waitForUpdate(stopTime);
+		sleep(50);
+		return isChanged;
+	}
+	public boolean waitForField(By by,long timeOutMillis){
+		terminalDriverScreenListener.markUpdate();
+		final long stopTime = System.currentTimeMillis() + timeOutMillis;
+		boolean isChanged = false;
+		do{
+			for(ScreenField field: getScreenFields()){
+				if(by.matches(field)){
+					return true;
+				}
+			}
+			isChanged = terminalDriverScreenListener.waitForUpdate(stopTime);
+		}while(isChanged);
+		return false;
+	}
+	public boolean waitFor(By by,long timeOutMillis){
+		terminalDriverScreenListener.markUpdate();
+		final long stopTime = System.currentTimeMillis() + timeOutMillis;
+		boolean isChanged = false;
+		do{
+			if(by.findElement(this) != null){
+				return true;
+			}
+			isChanged = terminalDriverScreenListener.waitForUpdate(stopTime);
+		}while(isChanged);
+		return false;
 	}
 	
 	public ScreenElement findElement(By by){
@@ -115,7 +150,7 @@ public class TerminalDriver {
 	}
 	
 	public ScreenField findFieldById(int id){
-		for(org.tn5250j.framework.tn5250.ScreenField fielditem:getScreenFields()){
+		for(org.tn5250j.framework.tn5250.ScreenField fielditem:getRawScreenFields()){
 			if(fielditem.getFieldId() == id){
 				return new ScreenField(fielditem);
 			}
@@ -136,6 +171,28 @@ public class TerminalDriver {
 	public List<ScreenElement> findElementsByLabelText(String label, com.terminaldriver.tn5250j.obj.By.ByLabelText.Position position){
 		List<ScreenElement> items = new ArrayList<ScreenElement>();
 		items.add(findElementByLabelText(label,position));
+		return items;
+	}
+
+	public ScreenElement findElementByText(String text){
+		ScreenFieldReader reader = new ScreenFieldReader(session.getScreen());
+		ScreenTextBlock field = null;
+		while ((field = reader.readField()) != null){
+			if(text != null && field.getString() != null && text.trim().equals(field.getString().trim())){
+				return field;
+			}
+		}
+		return null;
+	}
+	public List<ScreenElement> findElementsByText(String text){
+		List<ScreenElement> items = new ArrayList<ScreenElement>();
+		ScreenFieldReader reader = new ScreenFieldReader(session.getScreen());
+		ScreenTextBlock field = null;
+		while ((field = reader.readField()) != null){
+			if(text != null && field.getString() != null && text.trim().equals(field.getString().trim())){
+				items.add(field);
+			}
+		}
 		return items;
 	}
 
@@ -182,44 +239,73 @@ public class TerminalDriver {
 		return items;
 	}
 	
-	private List<org.tn5250j.framework.tn5250.ScreenField> getScreenFields(){
+	public List<ScreenField> getScreenFields(){
+		List<ScreenField> retval = new ArrayList<ScreenField>();
+		for(org.tn5250j.framework.tn5250.ScreenField field: getRawScreenFields()){
+			retval.add(new ScreenField(field));
+		}
+		return retval;
+	}
+	private List<org.tn5250j.framework.tn5250.ScreenField> getRawScreenFields(){
 		return Arrays.asList(session.getScreen().getScreenFields().getFields());
 	}
 	
 	
 	public class TerminalDriverScreenListener implements ScreenListener{
 		
-		long lastClearedMessage = 0;
+		@Setter
+		boolean SuppressFullScreenEmpty = true;
+		
+		/**
+		 * Time in milliseconds of the last time the full screen was changed
+		 */
 		@Getter
 		long lastScreenChange = 0;
+		@Getter
+		long lastScreenUpdate = 0;
 		
 		public void onScreenChanged(int arg0, int row1, int col1, int row2, int col2) {
-			System.out.println(String.format("screen changed %s %s %s %s %s @ %s",arg0,row1,col1,row2,col2,new Date().toString()));
 				
 			if(row1==0 && col1==0 && row2>=23 && col2>=79){
-				//Auto close messages.
-				final ScreenElement element = findElement(By.and(By.row(1),By.attribute(ScreenAttribute.WHT)));
-				if(element != null && element.getString().trim().equals("Display Program Messages")
-						&& lastClearedMessage +500 < System.currentTimeMillis()){
-					lastClearedMessage = System.currentTimeMillis();
-					keys().enter();
-				}else{
-					lastScreenChange  = System.currentTimeMillis();
+				//Suppress notification of a completely empty screen. Assuming content will follow promptly.
+				if(SuppressFullScreenEmpty && getScreenText().trim().isEmpty()){
+					return;
 				}
+				//Auto close messages window.
+				final ScreenElement element = findElement(By.and(By.row(1),By.attribute(ScreenAttribute.WHT)));
+				if(element != null && element.getString().trim().equals("Display Program Messages")){
+					final ScreenElement pressEnterText= findElement(By.text("Press Enter to continue."));
+					if(pressEnterText != null){
+						System.out.println("Closing messages window");
+						keys().enter();
+					}
+				}
+				lastScreenChange  = System.currentTimeMillis();
 			}
+			lastScreenUpdate  = System.currentTimeMillis();
+			System.out.println(String.format("screen changed %s %s,%s x %s,%s @ %s",arg0,row1,col1,row2,col2,new Date().toString()));
 		}
 
-		public void onScreenSizeChanged(int arg0, int arg1) {
-			
+		public void onScreenSizeChanged(int arg0, int arg1) {}
+		
+		long markedUpdate =0;
+		public void markUpdate(){
+			markedUpdate=lastScreenUpdate;
+		}
+		public boolean waitForUpdate(long untilTime){
+			while(System.currentTimeMillis() < untilTime){
+				if(markedUpdate != lastScreenUpdate){
+					return true;
+				}
+				sleep(100);
+			}
+			return false;
 		}
 	}
 
 	public static class TerminalDriverSessionListener implements SessionListener{
-		@Getter
-		boolean connected=false;
 		
 		public void onSessionChanged(SessionChangeEvent arg0) {
-			connected = (arg0.getState()==1);
 		}	
 	}
 	
