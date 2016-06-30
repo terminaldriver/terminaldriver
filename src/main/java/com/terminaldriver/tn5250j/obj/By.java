@@ -13,6 +13,14 @@ import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
  */
 public abstract class By {
   /**
+   * 
+   * @return a By which matches anything.
+   */
+  public static By any() {
+    return new ByAny();
+  }
+  
+  /**
    * @param id The value of the "id" attribute to search for
    * @return a By which locates screen elements by their ordinal position.
    */
@@ -50,6 +58,15 @@ public abstract class By {
 	          "Cannot find elements when attribute is null.");
 
 	    return new ByAttribute(attribute);
+	  }
+  
+
+  public static By text(final String text) {
+	    if (text == null)
+	      throw new IllegalArgumentException(
+	          "Cannot find elements when text is null.");
+
+	    return new ByText(text);
 	  }
 
 
@@ -130,34 +147,48 @@ public abstract class By {
 
   public static class ById extends By implements Serializable {
 
-    private static final long serialVersionUID = 5341968046120372169L;
+	    private static final long serialVersionUID = 5341968046120372169L;
 
-    private final String id;
+	    private final String id;
 
-    public ById(String id) {
-      this.id = id;
-    }
+	    public ById(String id) {
+	      this.id = id;
+	    }
 
-    @Override
-    public List<ScreenElement> findElements(TerminalDriver driver) {
-        return driver.findFieldsById(Integer.valueOf(id));
-    }
+	    @Override
+	    public List<ScreenElement> findElements(TerminalDriver driver) {
+	        return driver.findFieldsById(Integer.valueOf(id));
+	    }
 
-    @Override
-    public ScreenElement findElement(TerminalDriver driver) {
-        return driver.findFieldById(Integer.valueOf(id));
-    }
+	    @Override
+	    public ScreenElement findElement(TerminalDriver driver) {
+	        return driver.findFieldById(Integer.valueOf(id));
+	    }
 
-    @Override
-    public String toString() {
-      return "By.id: " + id;
-    }
+	    @Override
+	    public String toString() {
+	      return "By.id: " + id;
+	    }
 
-	@Override
-	public boolean matches(ScreenElement element) {
-		return element instanceof ScreenField && ((ScreenField)element).getFieldId()==Integer.valueOf(id);
-	}
-  }
+		@Override
+		public boolean matches(ScreenElement element) {
+			return element instanceof ScreenField && ((ScreenField)element).getFieldId()==Integer.valueOf(id);
+		}
+	  }
+  
+  public static class ByAny extends ById implements Serializable {
+
+	    private static final long serialVersionUID = 5341968046120372169L;
+
+	    public ByAny() {
+	    	super("1");
+	    }
+
+		@Override
+		public boolean matches(ScreenElement element) {
+			return true;
+		}
+	  }
 
   public static class ByLabelText extends By implements Serializable {
 
@@ -197,6 +228,36 @@ public abstract class By {
 		@Override
 		public boolean matches(ScreenElement element) {
 			return false; //tODO
+		}
+	  }
+  public static class ByText extends By implements Serializable {
+
+	    private static final long serialVersionUID = 1967414585359739708L;
+	    
+
+	    private final String text;
+
+	    public ByText(String text) {
+	      this.text = text;
+	    }
+
+	    @Override
+	    public List<ScreenElement> findElements(TerminalDriver driver) {
+	      return driver.findElementsByText(text);
+	    }
+
+	    @Override
+	    public ScreenElement findElement(TerminalDriver driver) {
+	      return driver.findElementByText(text);
+	    }
+
+	    @Override
+	    public String toString() {
+	      return "By.text: " + text;
+	    }
+		@Override
+		public boolean matches(ScreenElement element) {
+			return element!=null && element.getString().trim().equals(text.trim()); 
 		}
 	  }
 
