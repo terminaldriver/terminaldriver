@@ -41,5 +41,24 @@ public enum ScreenAttribute {
     public String getCode(){return code;}	
     public String getDescription(){return description;}	
     private ScreenAttribute(String code,String desc){this.code = code; this.description=desc;}
+    public String getColor(){
+    	if(code != null && !"Nondisplay".equals(description)){
+    		if(description.contains("Reverse")){
+    			return "reverse" + description.split("/")[0];
+    		}else{
+	    		return description.split("/")[0].toLowerCase();
+	    	}
+    	}
+    	return "";
+    }
+    public boolean isUnderLine(){
+    	if(code != null && !"Nondisplay".equals(description)){
+    		if(description.contains("Underscore")){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+
 	
 }
