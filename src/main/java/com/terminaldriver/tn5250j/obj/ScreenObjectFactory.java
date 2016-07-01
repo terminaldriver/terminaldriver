@@ -23,12 +23,12 @@ public class ScreenObjectFactory {
 		E object = null;
 		try {
 			object = clazz.newInstance();
+			initElements(object,driver);
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		initElements(object,driver);
 		return object;
 	}
 	public static boolean initElements(Object page, TerminalDriver driver){
@@ -124,7 +124,6 @@ public class ScreenObjectFactory {
 				return field;
 			}
 		}
-		
 		return null;
 	}
 	
