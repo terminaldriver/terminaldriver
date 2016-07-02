@@ -2,6 +2,8 @@ package com.terminaldriver.tn5250j.obj;
 
 import org.tn5250j.framework.tn5250.Screen5250;
 
+import com.terminaldriver.tn5250j.TerminalDriver;
+
 import lombok.Getter;
 
 public class ScreenTextBlock extends ScreenElement {
@@ -12,16 +14,16 @@ public class ScreenTextBlock extends ScreenElement {
 	final int length;
 	final String attr;
 	@Getter
-	final Screen5250 screen;
+	final TerminalDriver driver;
 
-	public ScreenTextBlock(Screen5250 screen,String value, int startRow, int startColumn, int length, String attr) {
+	public ScreenTextBlock(TerminalDriver driver,String value, int startRow, int startColumn, int length, String attr) {
 		super();
 		this.value = value;
 		this.startRow = startRow;
 		this.startColumn = startColumn;
 		this.length = length;
 		this.attr = attr;
-		this.screen = screen;
+		this.driver = driver;
 	}
 
 	@Override
@@ -51,7 +53,7 @@ public class ScreenTextBlock extends ScreenElement {
 
 	@Override
 	public int startPos() {
-		return (startRow - 1) * screen.getColumns() + startColumn;
+		return (startRow - 1) * driver.getScreenColumns() + startColumn;
 	}
 
 	@Override

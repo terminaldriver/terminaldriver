@@ -3,6 +3,7 @@ package com.terminaldriver.tn5250j.util;
 import org.tn5250j.TN5250jConstants;
 import org.tn5250j.framework.tn5250.Screen5250;
 
+import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.obj.ScreenDataContainer;
 import com.terminaldriver.tn5250j.obj.ScreenTextBlock;
 
@@ -12,13 +13,14 @@ public class ScreenFieldReader implements TN5250jConstants {
 	int rows;
 	int currentRow = 1;
 	int currentCol = 1;
-	final Screen5250 screen;
+	final TerminalDriver driver;
 
-	public ScreenFieldReader(Screen5250 screen) {
+	public ScreenFieldReader(TerminalDriver driver) {
+		Screen5250 screen = driver.getSession().getScreen();
 		sc = new ScreenDataContainer(screen);
 		rows = screen.getRows();
 		cols = screen.getColumns();
-		this.screen = screen;
+		this.driver = driver;
 	}
 
 	public void seek(int pos) {
@@ -47,7 +49,7 @@ public class ScreenFieldReader implements TN5250jConstants {
 				return null;
 			}
 			String content = new String(sc.text).substring(startBuffer, endBuffer);
-			ScreenTextBlock retval = new ScreenTextBlock(screen,content, pos2row(startBuffer), pos2col(startBuffer),
+			ScreenTextBlock retval = new ScreenTextBlock(driver,content, pos2row(startBuffer), pos2col(startBuffer),
 					endBuffer - startBuffer, Character.valueOf(sc.attr[startBuffer]).toString());
 			return retval;
 		} catch (ArrayIndexOutOfBoundsException e) {

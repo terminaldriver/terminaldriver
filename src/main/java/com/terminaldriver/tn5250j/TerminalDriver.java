@@ -62,6 +62,13 @@ public class TerminalDriver {
 	public String getScreenText() {
 		return new String(session.getScreen().getCharacters());
 	}
+	
+	public int getScreenColumns(){
+		return session.getScreen().getColumns();
+	}
+	public int getScreenRows(){
+		return session.getScreen().getRows();
+	}
 
 	public ScreenDataContainer getCurrentScreenData() {
 		return new ScreenDataContainer(session.getScreen());
@@ -212,7 +219,7 @@ public class TerminalDriver {
 	}
 
 	public ScreenElement findElementByText(String text) {
-		ScreenFieldReader reader = new ScreenFieldReader(session.getScreen());
+		ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null) {
 			if (text != null && field.getString() != null && text.trim().equals(field.getString().trim())) {
@@ -224,7 +231,7 @@ public class TerminalDriver {
 
 	public List<ScreenElement> findElementsByText(String text) {
 		List<ScreenElement> items = new ArrayList<ScreenElement>();
-		ScreenFieldReader reader = new ScreenFieldReader(session.getScreen());
+		ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null) {
 			if (text != null && field.getString() != null && text.trim().equals(field.getString().trim())) {
@@ -235,7 +242,7 @@ public class TerminalDriver {
 	}
 
 	public ScreenElement findElementByAttribute(ScreenAttribute attribute) {
-		ScreenFieldReader reader = new ScreenFieldReader(session.getScreen());
+		ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null) {
 			if (attribute != ScreenAttribute.UNSET && !field.getAttr().equals(attribute.getCode())) {
@@ -247,7 +254,7 @@ public class TerminalDriver {
 
 	public List<ScreenElement> findElementsByAttribute(ScreenAttribute attribute) {
 		List<ScreenElement> items = new ArrayList<ScreenElement>();
-		ScreenFieldReader reader = new ScreenFieldReader(session.getScreen());
+		ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null) {
 			if (attribute != ScreenAttribute.UNSET && !field.getAttr().equals(attribute.getCode())) {
@@ -258,7 +265,7 @@ public class TerminalDriver {
 	}
 
 	public ScreenElement findElementByPosition(final Integer row, final Integer column) {
-		ScreenFieldReader reader = new ScreenFieldReader(session.getScreen());
+		ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null) {
 			if ((column == null || field.startCol() == column) && (row == null || field.startRow() == row)) {
@@ -270,7 +277,7 @@ public class TerminalDriver {
 
 	public List<ScreenElement> findElementsByPosition(final Integer row, final Integer column) {
 		List<ScreenElement> items = new ArrayList<ScreenElement>();
-		ScreenFieldReader reader = new ScreenFieldReader(session.getScreen());
+		ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null) {
 			if ((column == null || field.startCol() == column) && (row == null || field.startRow() == row)) {

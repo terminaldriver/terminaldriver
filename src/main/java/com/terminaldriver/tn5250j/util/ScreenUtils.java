@@ -41,7 +41,7 @@ public class ScreenUtils {
 		}
 
 		int currentPosition = 0;
-		ScreenFieldReader reader = new ScreenFieldReader(screen);
+		ScreenFieldReader reader = new ScreenFieldReader(driver);
 		for (FindBy findBy : info.value()) {
 			if (findBy.row() > 0 && pos2row(currentPosition, screen.getColumns()) != findBy.row()) {
 				currentPosition = (findBy.row() - 1) * screen.getColumns();
