@@ -127,13 +127,17 @@ public class TerminalDriver {
 	public boolean waitForInputNotInhibited(long timeOutMillis) {
 		final long stopTime = System.currentTimeMillis() + timeOutMillis;
 		while (System.currentTimeMillis() < stopTime) {
-			if(session.getScreen().getOIA().getInputInhibited() == ScreenOIA.INPUTINHIBITED_NOTINHIBITED){
+			if(acceptingInput()){
 				sleep(50);
 				return true;
 			}
 			sleep(100);
 		}
 		return false;
+	}
+	
+	public boolean acceptingInput(){
+		return session.getScreen().getOIA().getInputInhibited() == ScreenOIA.INPUTINHIBITED_NOTINHIBITED;
 	}
 
 	public boolean waitForUpdate(long timeOutMillis) {
@@ -298,6 +302,9 @@ public class TerminalDriver {
 		 */
 		@Getter
 		long lastScreenChange = 0;
+		/**
+		 * Time in milliseconds of the last time the screen was partially updated
+		 */
 		@Getter
 		long lastScreenUpdate = 0;
 
@@ -311,12 +318,9 @@ public class TerminalDriver {
 				}
 				// Auto close messages window.
 				final ScreenElement element = findElement(By.and(By.row(1), By.attribute(ScreenAttribute.WHT)));
-				if (element != null && element.getString().trim().equals("Display Program Messages")) {
-					final ScreenElement pressEnterText = findElement(By.text("Press Enter to continue."));
-					if (pressEnterText != null) {
-						System.out.println("Closing messages window");
-						keys().enter();
-					}
+				if (element != null && element.getString().trim().equals("Display Program Messages") && acceptingInput()) {
+					System.out.println("Closing messages window");
+					keys().enter();
 				}
 				lastScreenChange = System.currentTimeMillis();
 			}
@@ -325,8 +329,7 @@ public class TerminalDriver {
 					new Date().toString()));
 		}
 
-		public void onScreenSizeChanged(int arg0, int arg1) {
-		}
+		public void onScreenSizeChanged(int arg0, int arg1) {}
 
 		long markedUpdate = 0;
 
