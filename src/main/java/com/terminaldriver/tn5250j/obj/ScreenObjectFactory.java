@@ -10,11 +10,11 @@ import java.util.List;
 
 import org.tn5250j.framework.tn5250.Screen5250;
 
+import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.annotation.FindBy;
 import com.terminaldriver.tn5250j.obj.ScreenElement;
 import com.terminaldriver.tn5250j.obj.ScreenField;
 import com.terminaldriver.tn5250j.obj.ScreenTextBlock;
-import com.terminaldriver.tn5250j.obj.TerminalDriver;
 import com.terminaldriver.tn5250j.util.ScreenFieldReader;
 
 public class ScreenObjectFactory {

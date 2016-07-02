@@ -1,5 +1,7 @@
 package com.terminaldriver.tn5250j.obj;
 
+import com.terminaldriver.tn5250j.TerminalDriver;
+
 public class Keys{
 	
 	TerminalDriver driver;

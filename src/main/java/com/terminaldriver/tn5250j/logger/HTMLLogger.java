@@ -13,21 +13,20 @@ import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
  *
  */
 public class HTMLLogger {
+	
+	static final String NEW_LINE = System.getProperty("line.separator");
 
 	public static String getHTML(Screen5250 screen) {
 		StringBuilder sb = new StringBuilder();
 		RowReader rowReader = new RowReader(screen);
 		String row;
-		sb.append("<div>");
-		sb.append("<pre>");
+		sb.append("<div class=\"console\">");
 		while ((row = rowReader.readRow()) != null) {
-			sb.append("<span class=\"console\">");
+			sb.append("<span class=\"consoleline\">");
 			sb.append(row);
-			sb.append("<br>");
-			sb.append("</span>");
+			sb.append("</span>").append(NEW_LINE);
 		}
-		sb.append("</pre>");
-		sb.append("</div>");
+		sb.append("</div>").append(NEW_LINE);
 		return sb.toString();
 	}
 
@@ -54,7 +53,7 @@ public class HTMLLogger {
 				pos += cols;
 				final StringBuilder sb = new StringBuilder();
 				char currentAttr = ' ';
-				
+				sb.append("<pre>");
 				sb.append("<span class=\"greenText\">");
 				for (int i = 0; i < cols; i++) {
 					if (currentAttr != rowAttr.charAt(i)) {
@@ -71,6 +70,7 @@ public class HTMLLogger {
 					sb.append(StringEscapeUtils.escapeHtml(String.valueOf(row.charAt(i))));
 				}
 				sb.append("</span>");
+				sb.append("</pre>");
 				return sb.toString();
 			}
 			return null;
