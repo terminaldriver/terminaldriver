@@ -46,7 +46,7 @@ public class ScreenObjectFactory {
 	           try {
 	        		  if(!field.isAccessible())
 	        			  field.setAccessible(true);
-	        	   ScreenElement newScreenField = applyFind(field.getType(),screen,info,screenFields,currentScreenField);
+	        	   ScreenElement newScreenField = applyFind(field.getType(),driver,info,screenFields,currentScreenField);
 	        	  if(newScreenField != null){
 	        		  field.set(page, newScreenField);
 	        		  currentScreenField=newScreenField;
@@ -74,11 +74,11 @@ public class ScreenObjectFactory {
 	    return foundAll;
 	}
 
-	private static ScreenElement applyFind(Class<?> targetClazz, Screen5250 screen, FindBy info, List<org.tn5250j.framework.tn5250.ScreenField> screenFields, ScreenElement currentScreenField) {
+	private static ScreenElement applyFind(Class<?> targetClazz, TerminalDriver driver, FindBy info, List<org.tn5250j.framework.tn5250.ScreenField> screenFields, ScreenElement currentScreenField) {
 		if(targetClazz.equals(ScreenField.class)){
 			return applyFindScreenField(info,screenFields,currentScreenField);
 		}else{
-			return applyFindScreenTextBlock(screen, info,screenFields,currentScreenField);
+			return applyFindScreenTextBlock(driver, info,screenFields,currentScreenField);
 		}
 	}
 	private static ScreenField applyFindScreenField(FindBy info, List<org.tn5250j.framework.tn5250.ScreenField> screenFields, ScreenElement currentScreenField) {
@@ -105,7 +105,8 @@ public class ScreenObjectFactory {
 		return null;
 	}
 	
-	private static ScreenTextBlock applyFindScreenTextBlock(Screen5250 screen, FindBy info, List<org.tn5250j.framework.tn5250.ScreenField> screenFields, ScreenElement currentScreenField) {
+	private static ScreenTextBlock applyFindScreenTextBlock(TerminalDriver driver, FindBy info, List<org.tn5250j.framework.tn5250.ScreenField> screenFields, ScreenElement currentScreenField) {
+		Screen5250 screen = driver.getSession().getScreen();
 		int currentPosition=0;
 		if(currentScreenField != null){
 			currentPosition = currentScreenField.endPos();
@@ -116,7 +117,7 @@ public class ScreenObjectFactory {
 		if(info.row()>0 && info.column()>0){
 			currentPosition = (info.row()-1)*screen.getColumns() + info.column();
 		}
-		ScreenFieldReader reader = new ScreenFieldReader(screen);
+		ScreenFieldReader reader = new ScreenFieldReader(driver);
 		reader.seek(currentPosition);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null){
