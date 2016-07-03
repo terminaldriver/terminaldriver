@@ -334,7 +334,7 @@ public class TerminalDriver {
 				final ScreenElement element = findElement(By.and(By.row(1), By.attribute(ScreenAttribute.WHT)));
 				if (element != null && element.getString().trim().equals("Display Program Messages")
 						&& acceptingInput()) {
-					System.out.println("Closing messages window");
+					fireNote("Closing messages window");
 					keys().enter();
 				}
 				lastScreenChange = System.currentTimeMillis();
@@ -342,8 +342,6 @@ public class TerminalDriver {
 				fireScreenPartialsUpdate(row1, col1, row2, col2);
 			}
 			lastScreenUpdate = System.currentTimeMillis();
-			System.out.println(String.format("screen changed %s %s,%s x %s,%s @ %s", arg0, row1, col1, row2, col2,
-					new Date().toString()));
 		}
 
 		public void onScreenSizeChanged(final int cols, final int rows) {
@@ -370,15 +368,12 @@ public class TerminalDriver {
 	public static class TerminalDriverSessionListener implements SessionListener {
 
 		public void onSessionChanged(final SessionChangeEvent arg0) {
-			System.out
-					.println("onSessionChanged:" + arg0.getSource() + " " + arg0.getState() + " " + arg0.getMessage());
 		}
 	}
 
 	public static class TerminDriverScreenOIAListener implements ScreenOIAListener {
 
 		public void onOIAChanged(final ScreenOIA arg0, final int arg1) {
-			System.out.println(String.format("ScreenOIA:%s  -- %s", arg0.getInputInhibited(), arg1));
 		}
 	}
 
@@ -416,6 +411,12 @@ public class TerminalDriver {
 	private void fireScreenChanged() {
 		for (final TerminalDriverChangeListener listener : listeners) {
 			listener.screenChanged(this);
+		}
+	}
+	
+	private void fireNote(String note){
+		for (final TerminalDriverChangeListener listener : listeners) {
+			listener.note(note);
 		}
 	}
 

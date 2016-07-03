@@ -14,4 +14,6 @@ public interface TerminalDriverChangeListener {
 	public void screenPartialsUpdate(TerminalDriver driver, int row1, int col1, int row2, int col2);
 
 	public void screenChanged(TerminalDriver driver);
+	
+	public void note(String note);
 }

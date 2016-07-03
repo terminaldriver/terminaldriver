@@ -67,6 +67,24 @@ public class HTMLBuilder {
 	}
 
 	public void addLog(final HTMLLogInfo info) {
+		addLog(info,false);
+	}
+	/**
+	 * Auto combine two subsequent identical screens, unless verbose = true
+	 * @param info
+	 * @param verbose
+	 */
+	public void addLog(final HTMLLogInfo info,boolean verbose) {
+		if(!verbose && info != null && infos.size()>0 ){
+			HTMLLogInfo lastone = infos.get(infos.size()-1);
+			if(lastone.getScreenHtml().equals(info.getScreenHtml())){
+				if(info.getLogText() != null && !info.getLogText().trim().isEmpty()){
+					lastone.addText("Same screen.");
+					lastone.addText(info.getLogText().trim());
+				}
+				return;
+			}
+		}
 		infos.add(info);
 	}
 }
