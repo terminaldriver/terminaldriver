@@ -1,4 +1,4 @@
-package com.terminaldriver.tn5250j.logger;
+package com.terminaldriver.common.logger;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.tn5250j.TN5250jConstants;

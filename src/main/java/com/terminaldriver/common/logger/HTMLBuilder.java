@@ -1,4 +1,4 @@
-package com.terminaldriver.tn5250j.logger;
+package com.terminaldriver.common.logger;
 
 import java.io.IOException;
 import java.io.Writer;
