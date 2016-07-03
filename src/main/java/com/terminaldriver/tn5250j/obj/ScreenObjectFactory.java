@@ -76,12 +76,12 @@ public class ScreenObjectFactory {
 
 	private static ScreenElement applyFind(Class<?> targetClazz, TerminalDriver driver, FindBy info, List<org.tn5250j.framework.tn5250.ScreenField> screenFields, ScreenElement currentScreenField) {
 		if(targetClazz.equals(ScreenField.class)){
-			return applyFindScreenField(info,screenFields,currentScreenField);
+			return applyFindScreenField(driver, info,screenFields,currentScreenField);
 		}else{
 			return applyFindScreenTextBlock(driver, info,screenFields,currentScreenField);
 		}
 	}
-	private static ScreenField applyFindScreenField(FindBy info, List<org.tn5250j.framework.tn5250.ScreenField> screenFields, ScreenElement currentScreenField) {
+	private static ScreenField applyFindScreenField(final TerminalDriver driver, FindBy info, List<org.tn5250j.framework.tn5250.ScreenField> screenFields, ScreenElement currentScreenField) {
 		int currentPosition=0;
 		if(currentScreenField instanceof ScreenField){
 			currentPosition = screenFields.indexOf(((ScreenField) currentScreenField).getUnderlyingScreenField())+1;
@@ -97,7 +97,7 @@ public class ScreenObjectFactory {
 			}
 		}
 		while(currentPosition < screenFields.size()){
-			ScreenField thisScreen = new ScreenField(screenFields.get(currentPosition++));
+			ScreenField thisScreen = new ScreenField(driver,screenFields.get(currentPosition++));
 			if(findMatches(info,thisScreen)){
 				return thisScreen;
 			}

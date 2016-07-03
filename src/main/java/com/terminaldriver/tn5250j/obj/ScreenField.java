@@ -1,12 +1,16 @@
 package com.terminaldriver.tn5250j.obj;
 
+import com.terminaldriver.tn5250j.TerminalDriver;
+
 public class ScreenField extends ScreenElement {
 
 	final org.tn5250j.framework.tn5250.ScreenField screenField;
+	final TerminalDriver driver;
 
-	public ScreenField(org.tn5250j.framework.tn5250.ScreenField screenField) {
+	public ScreenField(TerminalDriver driver, org.tn5250j.framework.tn5250.ScreenField screenField) {
 		super();
 		this.screenField = screenField;
+		this.driver=driver;
 	}
 
 	@Override
@@ -52,7 +56,8 @@ public class ScreenField extends ScreenElement {
 		return screenField.getString();
 	}
 
-	public void setString(String value) {
+	public void setString(final String value) {
+		driver.fireFieldSetString(this,value);
 		screenField.setString(value);
 	}
 }
