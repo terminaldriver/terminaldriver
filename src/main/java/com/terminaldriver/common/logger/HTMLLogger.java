@@ -53,21 +53,22 @@ public class HTMLLogger {
 				pos += cols;
 				final StringBuilder sb = new StringBuilder();
 				char currentAttr = ' ';
+				ScreenAttribute currentAttrEnum=ScreenAttribute.GRN;
 				sb.append("<pre>");
 				sb.append("<span class=\"greenText\">");
 				for (int i = 0; i < cols; i++) {
 					if (currentAttr != rowAttr.charAt(i)) {
 						currentAttr = rowAttr.charAt(i);
+						currentAttrEnum = ScreenAttribute.getAttrEnum(currentAttr);
 						sb.append("</span>").append("<span");
-						for (ScreenAttribute attr : ScreenAttribute.values()) {
-							if (attr.getCode() != null && currentAttr == attr.getCode().charAt(0)) {
-								sb.append(" class=\"").append(doClass(attr)).append("\"");
-								break;
-							}
-						}
+						sb.append(" class=\"").append(doClass(currentAttrEnum)).append("\"");
 						sb.append(">");
 					}
-					sb.append(StringEscapeUtils.escapeHtml(String.valueOf(row.charAt(i))));
+					if(currentAttrEnum.isNonDisplay()){
+						sb.append(" ");
+					}else{
+						sb.append(StringEscapeUtils.escapeHtml(String.valueOf(row.charAt(i))));
+					}
 				}
 				sb.append("</span>");
 				sb.append("</pre>");
@@ -75,6 +76,7 @@ public class HTMLLogger {
 			}
 			return null;
 		}
+		
 		
 		String doClass(ScreenAttribute attr){
 			final StringBuilder sb = new StringBuilder();

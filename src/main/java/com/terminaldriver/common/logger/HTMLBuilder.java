@@ -17,6 +17,7 @@ import lombok.Setter;
 
 public class HTMLBuilder {
 	
+	
 	List<HTMLLogInfo> infos = new ArrayList<HTMLLogInfo>();
 
 	final Writer writer;
@@ -45,7 +46,7 @@ public class HTMLBuilder {
 		@Getter
 		public final String screenHtml;
 		@Getter
-		public final String logText;
+		public String logText;
 		@Getter
 		@Setter
 		public String testName;
@@ -55,5 +56,16 @@ public class HTMLBuilder {
 			this.screenHtml = screenHtml;
 			this.logText = logText;
 		}
+		
+		public void addText(String text){
+			if (logText == null){
+				logText = "";
+			}
+			logText += "<br>" + text;
+		}
+	}
+	
+	public void addLog(HTMLLogInfo info){
+		infos.add(info);
 	}
 }

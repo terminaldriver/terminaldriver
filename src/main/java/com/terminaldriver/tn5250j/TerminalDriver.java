@@ -387,7 +387,10 @@ public class TerminalDriver {
 		return keys;
 	}
 
-	public void fireFieldSetString(final ScreenField screenField, final String value) {
+	public void fireFieldSetString(final ScreenField screenField, String value) {
+		if(ScreenAttribute.getAttrEnum(screenField.getAttr().charAt(0)).isNonDisplay()){
+			value=value.replaceAll(".", "*");
+		}
 		for(TerminalDriverChangeListener listener : listeners){
 			listener.fieldSetString(this, screenField, value);
 		}

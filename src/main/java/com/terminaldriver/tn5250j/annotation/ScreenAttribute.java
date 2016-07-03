@@ -59,6 +59,20 @@ public enum ScreenAttribute {
     	}
     	return false;
     }
-
+    public boolean isNonDisplay(){
+    	if(code != null && "Nondisplay".equals(description)){
+   			return true;
+    	}
+    	return false;
+    }
+    
+	public static ScreenAttribute getAttrEnum(char currentAttr){
+		for (ScreenAttribute attr : ScreenAttribute.values()) {
+			if (attr.getCode() != null && currentAttr == attr.getCode().charAt(0)) {
+				return attr;
+			}
+		}
+		return UNSET;
+	}
 	
 }
