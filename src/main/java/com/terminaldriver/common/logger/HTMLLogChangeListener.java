@@ -44,35 +44,35 @@ public class HTMLLogChangeListener implements TerminalDriverChangeListener {
 
 	public void screenPartialsUpdate(final TerminalDriver driver, final int row1, final int col1, final int row2,
 			final int col2) {
-		
+
 		if (verbose) {
 			final String newHtmlScreen = HTMLLogger.getHTML(driver.getSession().getScreen());
 			if (info != null) {
 				if (info.getScreenHtml().equals(newHtmlScreen)) {
-					info.addText("Screen updated." + (driver.acceptingInput()?"Accepting input":"Input inhibited"));
+					info.addText("Screen updated." + (driver.acceptingInput() ? "Accepting input" : "Input inhibited"));
 					return;
 				}
-				htmlBuilder.addLog(info,verbose);
+				htmlBuilder.addLog(info, verbose);
 			}
 			info = new HTMLLogInfo(newHtmlScreen, null);
-
 		}
-		//If the screen was not accepting input when it changed, replace the log with when it does.
-		else if((screenChangePending && driver.acceptingInput())){
-			screenChangePending=false;
+		// If the screen was not accepting input when it changed, replace the
+		// log with when it does.
+		else if ((screenChangePending && driver.acceptingInput())) {
+			screenChangePending = false;
 			info = new HTMLLogInfo(HTMLLogger.getHTML(driver.getSession().getScreen()), info.getLogText());
-		}
-		else {
+		} else {
 			if (info != null) {
-				info.addText("Screen updated." + (driver.acceptingInput()?"Accepting input":"Input inhibited"));
+				info.addText("Screen updated." + (driver.acceptingInput() ? "Accepting input" : "Input inhibited"));
 			}
 		}
 	}
 
 	public void screenChanged(final TerminalDriver driver) {
-		//If a screen change is happening under input inhibited, you can assume is a single screen, and not multiples.
+		// If a screen change is happening under input inhibited, you can assume
+		// is a single screen, and not multiples.
 		// Verbose prints all the steps.
-		if (!verbose && screenChangePending){
+		if (!verbose && screenChangePending) {
 			info = new HTMLLogInfo(HTMLLogger.getHTML(driver.getSession().getScreen()), info.getLogText());
 			screenChangePending = !driver.acceptingInput();
 			return;
@@ -82,15 +82,16 @@ public class HTMLLogChangeListener implements TerminalDriverChangeListener {
 		}
 		info = new HTMLLogInfo(HTMLLogger.getHTML(driver.getSession().getScreen()), null);
 		screenChangePending = !driver.acceptingInput();
-		//info.addText((driver.acceptingInput()?"Accepting input":"Input inhibited"));
-		
+		// info.addText((driver.acceptingInput()?"Accepting input":"Input
+		// inhibited"));
+
 	}
 
 	public void close() throws IOException {
 		htmlBuilder.close();
 	}
 
-	public void note(String note) {
+	public void note(final String note) {
 		if (info != null) {
 			info.addText(note);
 		}
