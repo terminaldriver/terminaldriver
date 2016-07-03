@@ -18,7 +18,7 @@ public class ScreenUtils {
 	}
 
 	public static boolean verifyScreen(final Class<?> clazz, final TerminalDriver driver) {
-		FindBy result = checkScreen(clazz, driver);
+		final FindBy result = checkScreen(clazz, driver);
 		return result == null;
 	}
 
@@ -27,7 +27,7 @@ public class ScreenUtils {
 	}
 
 	public static void assertScreen(final Class<?> clazz, final TerminalDriver driver) {
-		FindBy result = checkScreen(clazz, driver);
+		final FindBy result = checkScreen(clazz, driver);
 		if (result != null) {
 			throw new NoSuchElementException("Page does not match: " + Find.toString(result));
 		}
@@ -41,8 +41,8 @@ public class ScreenUtils {
 		}
 
 		int currentPosition = 0;
-		ScreenFieldReader reader = new ScreenFieldReader(driver);
-		for (FindBy findBy : info.value()) {
+		final ScreenFieldReader reader = new ScreenFieldReader(driver);
+		for (final FindBy findBy : info.value()) {
 			if (findBy.row() > 0 && pos2row(currentPosition, screen.getColumns()) != findBy.row()) {
 				currentPosition = (findBy.row() - 1) * screen.getColumns();
 			}
@@ -67,11 +67,11 @@ public class ScreenUtils {
 		return null;
 	}
 
-	public static int pos2row(int pos, int cols) {
+	public static int pos2row(final int pos, final int cols) {
 		return Math.max(1, pos / cols + 1);
 	}
 
-	public static int pos2col(int pos, int cols) {
+	public static int pos2col(final int pos, final int cols) {
 		return Math.max(1, pos % cols);
 	}
 }

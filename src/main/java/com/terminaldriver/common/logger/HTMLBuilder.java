@@ -16,33 +16,34 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class HTMLBuilder {
-	
-	
+
 	List<HTMLLogInfo> infos = new ArrayList<HTMLLogInfo>();
 
 	final Writer writer;
-	public HTMLBuilder(Writer writer) throws IOException{
-		Velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath"); 
+
+	public HTMLBuilder(final Writer writer) throws IOException {
+		Velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
 		Velocity.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
 		Velocity.init();
-		this.writer=writer;
+		this.writer = writer;
 	}
-	
-	public void logScreen(final TerminalDriver driver) throws IOException{
-		logScreen(driver,null);
+
+	public void logScreen(final TerminalDriver driver) throws IOException {
+		logScreen(driver, null);
 	}
-	public void logScreen(final TerminalDriver driver,String notes) throws IOException{
-		infos.add(new HTMLLogInfo(HTMLLogger.getHTML(driver.getSession().getScreen()),notes));
+
+	public void logScreen(final TerminalDriver driver, final String notes) throws IOException {
+		infos.add(new HTMLLogInfo(HTMLLogger.getHTML(driver.getSession().getScreen()), notes));
 	}
-	
-	public void close() throws IOException{
-		VelocityContext context = new VelocityContext();
+
+	public void close() throws IOException {
+		final VelocityContext context = new VelocityContext();
 		context.put("info", infos);
-		Velocity.mergeTemplate("/com/terminaldriver/tn5250j/logger/HTMLLogger.template.html", "UTF-8", context, writer );
+		Velocity.mergeTemplate("/com/terminaldriver/tn5250j/logger/HTMLLogger.template.html", "UTF-8", context, writer);
 		writer.close();
 	}
-	
-	public static class HTMLLogInfo{
+
+	public static class HTMLLogInfo {
 		@Getter
 		public final String screenHtml;
 		@Getter
@@ -50,22 +51,22 @@ public class HTMLBuilder {
 		@Getter
 		@Setter
 		public String testName;
-		
-		public HTMLLogInfo(String screenHtml, String logText) {
+
+		public HTMLLogInfo(final String screenHtml, final String logText) {
 			super();
 			this.screenHtml = screenHtml;
 			this.logText = logText;
 		}
-		
-		public void addText(String text){
-			if (logText == null){
+
+		public void addText(final String text) {
+			if (logText == null) {
 				logText = "";
 			}
 			logText += "<br>" + text;
 		}
 	}
-	
-	public void addLog(HTMLLogInfo info){
+
+	public void addLog(final HTMLLogInfo info) {
 		infos.add(info);
 	}
 }

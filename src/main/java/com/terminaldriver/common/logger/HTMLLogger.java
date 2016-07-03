@@ -8,17 +8,17 @@ import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
 
 /**
  * Utility class to log the session
- * 
+ *
  * @author eberlyrh
  *
  */
 public class HTMLLogger {
-	
+
 	static final String NEW_LINE = System.getProperty("line.separator");
 
-	public static String getHTML(Screen5250 screen) {
-		StringBuilder sb = new StringBuilder();
-		RowReader rowReader = new RowReader(screen);
+	public static String getHTML(final Screen5250 screen) {
+		final StringBuilder sb = new StringBuilder();
+		final RowReader rowReader = new RowReader(screen);
 		String row;
 		sb.append("<div class=\"console\">");
 		while ((row = rowReader.readRow()) != null) {
@@ -37,7 +37,7 @@ public class HTMLLogger {
 		String screenChars;
 		String attributes;
 
-		public RowReader(Screen5250 screen) {
+		public RowReader(final Screen5250 screen) {
 			this.screen = screen;
 			cols = screen.getColumns();
 			screenChars = new String(screen.getScreenAsChars());
@@ -53,7 +53,7 @@ public class HTMLLogger {
 				pos += cols;
 				final StringBuilder sb = new StringBuilder();
 				char currentAttr = ' ';
-				ScreenAttribute currentAttrEnum=ScreenAttribute.GRN;
+				ScreenAttribute currentAttrEnum = ScreenAttribute.GRN;
 				sb.append("<pre>");
 				sb.append("<span class=\"greenText\">");
 				for (int i = 0; i < cols; i++) {
@@ -64,9 +64,9 @@ public class HTMLLogger {
 						sb.append(" class=\"").append(doClass(currentAttrEnum)).append("\"");
 						sb.append(">");
 					}
-					if(currentAttrEnum.isNonDisplay()){
+					if (currentAttrEnum.isNonDisplay()) {
 						sb.append(" ");
-					}else{
+					} else {
 						sb.append(StringEscapeUtils.escapeHtml(String.valueOf(row.charAt(i))));
 					}
 				}
@@ -76,9 +76,8 @@ public class HTMLLogger {
 			}
 			return null;
 		}
-		
-		
-		String doClass(ScreenAttribute attr){
+
+		String doClass(final ScreenAttribute attr) {
 			final StringBuilder sb = new StringBuilder();
 			sb.append(attr.getColor()).append("Text");
 			if (attr.isUnderLine()) {

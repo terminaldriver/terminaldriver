@@ -15,15 +15,15 @@ public class ScreenFieldReader implements TN5250jConstants {
 	int currentCol = 1;
 	final TerminalDriver driver;
 
-	public ScreenFieldReader(TerminalDriver driver) {
-		Screen5250 screen = driver.getSession().getScreen();
+	public ScreenFieldReader(final TerminalDriver driver) {
+		final Screen5250 screen = driver.getSession().getScreen();
 		sc = new ScreenDataContainer(screen);
 		rows = screen.getRows();
 		cols = screen.getColumns();
 		this.driver = driver;
 	}
 
-	public void seek(int pos) {
+	public void seek(final int pos) {
 		currentRow = pos2row(pos);
 		currentCol = pos2col(pos);
 	}
@@ -41,18 +41,18 @@ public class ScreenFieldReader implements TN5250jConstants {
 			if (sc.isAttr[bufferChar(currentRow, currentCol)] == 1) {
 				advance();
 			}
-			int startBuffer = bufferChar(currentRow, currentCol);
+			final int startBuffer = bufferChar(currentRow, currentCol);
 			while (advance() && sc.isAttr[bufferChar(currentRow, currentCol)] != 1) {
 			}
-			int endBuffer = bufferChar(currentRow, currentCol);
+			final int endBuffer = bufferChar(currentRow, currentCol);
 			if (endBuffer == startBuffer) {
 				return null;
 			}
-			String content = new String(sc.text).substring(startBuffer, endBuffer);
-			ScreenTextBlock retval = new ScreenTextBlock(driver,content, pos2row(startBuffer), pos2col(startBuffer),
-					endBuffer - startBuffer, Character.valueOf(sc.attr[startBuffer]).toString());
+			final String content = new String(sc.text).substring(startBuffer, endBuffer);
+			final ScreenTextBlock retval = new ScreenTextBlock(driver, content, pos2row(startBuffer),
+					pos2col(startBuffer), endBuffer - startBuffer, Character.valueOf(sc.attr[startBuffer]).toString());
 			return retval;
-		} catch (ArrayIndexOutOfBoundsException e) {
+		} catch (final ArrayIndexOutOfBoundsException e) {
 			if (currentRow > rows) {
 				return null;
 			}
@@ -70,15 +70,15 @@ public class ScreenFieldReader implements TN5250jConstants {
 		return true;
 	}
 
-	private int bufferChar(int row, int col) {
+	private int bufferChar(final int row, final int col) {
 		return ((row - 1) * cols) + col - 1;
 	}
 
-	private int pos2row(int pos) {
+	private int pos2row(final int pos) {
 		return Math.max(1, pos / cols + 1);
 	}
 
-	private int pos2col(int pos) {
+	private int pos2col(final int pos) {
 		return Math.max(1, pos % cols);
 	}
 

@@ -12,6 +12,6 @@ public interface TerminalDriverChangeListener {
 	public void screenSizeChanged(TerminalDriver driver, int cols, int rows);
 
 	public void screenPartialsUpdate(TerminalDriver driver, int row1, int col1, int row2, int col2);
-	
+
 	public void screenChanged(TerminalDriver driver);
 }

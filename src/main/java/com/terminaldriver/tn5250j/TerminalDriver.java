@@ -51,7 +51,7 @@ public class TerminalDriver {
 	final TerminalDriverScreenListener terminalDriverScreenListener = new TerminalDriverScreenListener();
 	final TerminDriverScreenOIAListener terminDriverScreenOIAListener = new TerminDriverScreenOIAListener();
 	final List<TerminalDriverChangeListener> listeners = new ArrayList<TerminalDriverChangeListener>();
-	
+
 	public TerminalDriver() {
 		super();
 	}
@@ -198,7 +198,7 @@ public class TerminalDriver {
 	public ScreenField findFieldById(final int id) {
 		for (final org.tn5250j.framework.tn5250.ScreenField fielditem : getRawScreenFields()) {
 			if (fielditem.getFieldId() == id) {
-				return new ScreenField(this,fielditem);
+				return new ScreenField(this, fielditem);
 			}
 		}
 		return null;
@@ -295,7 +295,7 @@ public class TerminalDriver {
 	public List<ScreenField> getScreenFields() {
 		final List<ScreenField> retval = new ArrayList<ScreenField>();
 		for (final org.tn5250j.framework.tn5250.ScreenField field : getRawScreenFields()) {
-			retval.add(new ScreenField(this,field));
+			retval.add(new ScreenField(this, field));
 		}
 		return retval;
 	}
@@ -338,8 +338,8 @@ public class TerminalDriver {
 					keys().enter();
 				}
 				lastScreenChange = System.currentTimeMillis();
-			}else{
-				fireScreenPartialsUpdate(row1,col1,row2,col2);
+			} else {
+				fireScreenPartialsUpdate(row1, col1, row2, col2);
 			}
 			lastScreenUpdate = System.currentTimeMillis();
 			System.out.println(String.format("screen changed %s %s,%s x %s,%s @ %s", arg0, row1, col1, row2, col2,
@@ -347,9 +347,8 @@ public class TerminalDriver {
 		}
 
 		public void onScreenSizeChanged(final int cols, final int rows) {
-			fireScreenSizeChanged(cols,rows);
+			fireScreenSizeChanged(cols, rows);
 		}
-
 
 		long markedUpdate = 0;
 
@@ -388,38 +387,39 @@ public class TerminalDriver {
 	}
 
 	public void fireFieldSetString(final ScreenField screenField, String value) {
-		if(ScreenAttribute.getAttrEnum(screenField.getAttr().charAt(0)).isNonDisplay()){
-			value=value.replaceAll(".", "*");
+		if (ScreenAttribute.getAttrEnum(screenField.getAttr().charAt(0)).isNonDisplay()) {
+			value = value.replaceAll(".", "*");
 		}
-		for(TerminalDriverChangeListener listener : listeners){
+		for (final TerminalDriverChangeListener listener : listeners) {
 			listener.fieldSetString(this, screenField, value);
 		}
 	}
-	private void fireSendKeys(String keys) {
-		for(TerminalDriverChangeListener listener : listeners){
+
+	private void fireSendKeys(final String keys) {
+		for (final TerminalDriverChangeListener listener : listeners) {
 			listener.sendKeys(this, keys);
 		}
 	}
 
-	private void fireScreenSizeChanged(int cols, int rows) {
-		for(TerminalDriverChangeListener listener : listeners){
+	private void fireScreenSizeChanged(final int cols, final int rows) {
+		for (final TerminalDriverChangeListener listener : listeners) {
 			listener.screenSizeChanged(this, cols, rows);
 		}
 	}
 
-	private void fireScreenPartialsUpdate(int row1, int col1, int row2, int col2) {
-		for(TerminalDriverChangeListener listener : listeners){
+	private void fireScreenPartialsUpdate(final int row1, final int col1, final int row2, final int col2) {
+		for (final TerminalDriverChangeListener listener : listeners) {
 			listener.screenPartialsUpdate(this, row1, col1, row2, col2);
 		}
 	}
 
 	private void fireScreenChanged() {
-		for(TerminalDriverChangeListener listener : listeners){
+		for (final TerminalDriverChangeListener listener : listeners) {
 			listener.screenChanged(this);
 		}
 	}
-	
-	public void addTerminalDriverChangeListener(TerminalDriverChangeListener listener){
+
+	public void addTerminalDriverChangeListener(final TerminalDriverChangeListener listener) {
 		listeners.add(listener);
 	}
 }
