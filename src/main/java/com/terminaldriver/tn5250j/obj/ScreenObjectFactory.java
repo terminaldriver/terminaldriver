@@ -5,6 +5,7 @@ import static com.terminaldriver.tn5250j.util.ScreenUtils.assertScreen;
 import static com.terminaldriver.tn5250j.util.ScreenUtils.pos2row;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.tn5250j.framework.tn5250.Screen5250;
 
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.annotation.FindBy;
+import com.terminaldriver.tn5250j.annotation.Table;
 import com.terminaldriver.tn5250j.util.ScreenFieldReader;
 
 public class ScreenObjectFactory {
@@ -39,9 +41,9 @@ public class ScreenObjectFactory {
 				.asList(screen.getScreenFields().getFields());
 		ScreenElement currentScreenField = null;
 		for (final Field field : fields) {
-			final FindBy info = field.getAnnotation(FindBy.class);
 
 			if (field.isAnnotationPresent(FindBy.class)) {
+				final FindBy info = field.getAnnotation(FindBy.class);
 				try {
 					if (!field.isAccessible()) {
 						field.setAccessible(true);
@@ -57,20 +59,65 @@ public class ScreenObjectFactory {
 				} catch (final Exception e) {
 					e.printStackTrace();
 				}
+				continue;
+			}
+
+			if (field.isAnnotationPresent(Table.class)) {
+				final Table info = field.getAnnotation(Table.class);
+				try {
+					if (!field.isAccessible()) {
+						field.setAccessible(true);
+					}
+					if (field.get(page) == null) {
+						field.set(page, new ArrayList());
+					}
+					List list = (List)field.get(page);
+					Class<?> newType = info.type();
+					Object tableObject = newType.newInstance();
+					foundAll = true;
+					while(foundAll == true){
+						for (final Field newfield : newType.getDeclaredFields()) {
+							if (newfield.isAnnotationPresent(FindBy.class)) {
+								if (!newfield.isAccessible()) {
+									newfield.setAccessible(true);
+								}
+								final FindBy findInfo = newfield.getAnnotation(FindBy.class);
+								final ScreenElement newScreenField = applyFind(newfield.getType(), driver, findInfo, screenFields,
+										currentScreenField);
+								if (newScreenField != null) {
+									newfield.set(tableObject, newScreenField);
+									currentScreenField = newScreenField;
+								} else {
+									foundAll = false;
+								}
+							}
+						}
+						if(foundAll){
+							list.add(tableObject);
+							tableObject = newType.newInstance();
+						}
+					}
+				} catch (final Exception e) {
+					e.printStackTrace();
+				}
+				continue;
 			}
 
 			// Set the driver if present.
-			try {
-				if (!field.isAccessible()) {
-					field.setAccessible(true);
+			if(field.getType().equals(TerminalDriver.class) ){
+				try {
+						if (!field.isAccessible()) {
+							field.setAccessible(true);
+						}
+						if (field.get(page) == null) {
+							field.set(page, driver);
+						}
+				} catch (final IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (final IllegalAccessException e) {
+					e.printStackTrace();
 				}
-				if (field.getType().equals(TerminalDriver.class) && field.get(page) == null) {
-					field.set(page, driver);
-				}
-			} catch (final IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (final IllegalAccessException e) {
-				e.printStackTrace();
+				continue;
 			}
 		}
 		return foundAll;
