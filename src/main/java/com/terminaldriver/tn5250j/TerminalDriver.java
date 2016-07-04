@@ -2,6 +2,8 @@ package com.terminaldriver.tn5250j;
 
 import static com.terminaldriver.tn5250j.util.Wait.sleep;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -29,7 +31,7 @@ import com.terminaldriver.tn5250j.util.ScreenFieldReader;
 import lombok.Getter;
 import lombok.Setter;
 
-public class TerminalDriver {
+public class TerminalDriver implements Closeable {
 
 	@Getter
 	@Setter
@@ -118,8 +120,13 @@ public class TerminalDriver {
 		session.addSessionListener(listener);
 	}
 
-	public void close() {
+	public void close() throws IOException {
 		session.disconnect();
+		for(TerminalDriverChangeListener listener : listeners){
+			if(listener instanceof Closeable){
+				((Closeable) listener).close();
+			}
+		}
 	}
 
 	public boolean waitForScreen(final long timeOutMillis) {
