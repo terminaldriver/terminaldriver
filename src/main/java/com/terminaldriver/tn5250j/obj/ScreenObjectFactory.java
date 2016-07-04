@@ -75,6 +75,7 @@ public class ScreenObjectFactory {
 					Class<?> newType = info.type();
 					Object tableObject = newType.newInstance();
 					foundAll = true;
+					ScreenElement saveCurrentScreenField = currentScreenField;
 					while(foundAll == true){
 						for (final Field newfield : newType.getDeclaredFields()) {
 							if (newfield.isAnnotationPresent(FindBy.class)) {
@@ -89,12 +90,14 @@ public class ScreenObjectFactory {
 									currentScreenField = newScreenField;
 								} else {
 									foundAll = false;
+									currentScreenField = saveCurrentScreenField;
 								}
 							}
 						}
 						if(foundAll){
 							list.add(tableObject);
 							tableObject = newType.newInstance();
+							saveCurrentScreenField = currentScreenField;
 						}
 					}
 				} catch (final Exception e) {
