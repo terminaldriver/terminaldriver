@@ -9,8 +9,6 @@ import com.terminaldriver.tn5250j.TerminalDriver;
 public class HTMLLogChangeListener extends LogChangeListener {
 
 	final HTMLBuilder htmlBuilder;
-	HTMLLogInfo info = null;
-	boolean screenChangePending = false;
 
 	public HTMLLogChangeListener(final Writer writer) throws IOException {
 		this(writer, false);
