@@ -64,45 +64,7 @@ public class ScreenObjectFactory {
 
 			if (field.isAnnotationPresent(Table.class)) {
 				final Table info = field.getAnnotation(Table.class);
-				try {
-					if (!field.isAccessible()) {
-						field.setAccessible(true);
-					}
-					if (field.get(page) == null) {
-						field.set(page, new ArrayList());
-					}
-					List list = (List)field.get(page);
-					Class<?> newType = info.type();
-					Object tableObject = newType.newInstance();
-					foundAll = true;
-					ScreenElement saveCurrentScreenField = currentScreenField;
-					while(foundAll == true){
-						for (final Field newfield : newType.getDeclaredFields()) {
-							if (newfield.isAnnotationPresent(FindBy.class)) {
-								if (!newfield.isAccessible()) {
-									newfield.setAccessible(true);
-								}
-								final FindBy findInfo = newfield.getAnnotation(FindBy.class);
-								final ScreenElement newScreenField = applyFind(newfield.getType(), driver, findInfo, screenFields,
-										currentScreenField);
-								if (newScreenField != null) {
-									newfield.set(tableObject, newScreenField);
-									currentScreenField = newScreenField;
-								} else {
-									foundAll = false;
-									currentScreenField = saveCurrentScreenField;
-								}
-							}
-						}
-						if(foundAll){
-							list.add(tableObject);
-							tableObject = newType.newInstance();
-							saveCurrentScreenField = currentScreenField;
-						}
-					}
-				} catch (final Exception e) {
-					e.printStackTrace();
-				}
+				currentScreenField = applyTableAnnotation(driver, page, info, field, screenFields, currentScreenField);
 				continue;
 			}
 
@@ -126,7 +88,63 @@ public class ScreenObjectFactory {
 		return foundAll;
 	}
 
-	private static ScreenElement applyFind(final Class<?> targetClazz, final TerminalDriver driver, final FindBy info,
+	static ScreenElement applyTableAnnotation(final TerminalDriver driver, final Object page, final Table info,
+			final Field field, final List<org.tn5250j.framework.tn5250.ScreenField> screenFields,
+			ScreenElement currentScreenField) {
+		
+			if (currentScreenField == null || info.row() > currentScreenField.startRow()){
+				if(info.row()>0){
+					for(org.tn5250j.framework.tn5250.ScreenField screenField : screenFields){
+						if(screenField.startRow() == info.row()){
+							currentScreenField = new ScreenTextBlock(driver, " ", info.row()-2, 80, 1, " ");
+						}
+					}
+				}
+			}
+		try {
+			if (!field.isAccessible()) {
+				field.setAccessible(true);
+			}
+			if (field.get(page) == null) {
+				field.set(page, new ArrayList<Object>());
+			}
+			@SuppressWarnings("unchecked")
+			List<Object> list = (List<Object>)field.get(page);
+			Class<?> newType = info.type();
+			Object tableObject = newType.newInstance();
+			boolean foundAllTable = true;
+			ScreenElement saveCurrentScreenField = currentScreenField;
+			while(foundAllTable == true){
+				for (final Field newfield : newType.getDeclaredFields()) {
+					if (newfield.isAnnotationPresent(FindBy.class)) {
+						if (!newfield.isAccessible()) {
+							newfield.setAccessible(true);
+						}
+						final FindBy findInfo = newfield.getAnnotation(FindBy.class);
+						final ScreenElement newScreenField = applyFind(newfield.getType(), driver, findInfo, screenFields,
+								currentScreenField);
+						if (newScreenField != null) {
+							newfield.set(tableObject, newScreenField);
+							currentScreenField = newScreenField;
+						} else {
+							foundAllTable = false;
+							currentScreenField = saveCurrentScreenField;
+						}
+					}
+				}
+				if(foundAllTable){
+					list.add(tableObject);
+					tableObject = newType.newInstance();
+					saveCurrentScreenField = currentScreenField;
+				}
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+		}
+		return currentScreenField;
+	}
+
+	static ScreenElement applyFind(final Class<?> targetClazz, final TerminalDriver driver, final FindBy info,
 			final List<org.tn5250j.framework.tn5250.ScreenField> screenFields, final ScreenElement currentScreenField) {
 		if (targetClazz.equals(ScreenField.class)) {
 			return applyFindScreenField(driver, info, screenFields, currentScreenField);
@@ -135,13 +153,18 @@ public class ScreenObjectFactory {
 		}
 	}
 
-	private static ScreenField applyFindScreenField(final TerminalDriver driver, final FindBy info,
+	static ScreenField applyFindScreenField(final TerminalDriver driver, final FindBy info,
 			final List<org.tn5250j.framework.tn5250.ScreenField> screenFields, final ScreenElement currentScreenField) {
 		int currentPosition = 0;
 		if (currentScreenField instanceof ScreenField) {
 			currentPosition = screenFields.indexOf(((ScreenField) currentScreenField).getUnderlyingScreenField()) + 1;
 		} else if (currentScreenField instanceof ScreenTextBlock) {
 			for (final org.tn5250j.framework.tn5250.ScreenField field : screenFields) {
+				if (field.startRow() == currentScreenField.startRow()
+						&& field.startCol() == currentScreenField.startCol()) {
+					break;
+				}
+				currentPosition = screenFields.indexOf(field);
 				if (field.startRow() > currentScreenField.startRow()) {
 					break;
 				}
@@ -149,7 +172,6 @@ public class ScreenObjectFactory {
 						&& field.startCol() > currentScreenField.startCol()) {
 					break;
 				}
-				currentPosition = screenFields.indexOf(field);
 			}
 		}
 		while (currentPosition < screenFields.size()) {
@@ -161,20 +183,28 @@ public class ScreenObjectFactory {
 		return null;
 	}
 
-	private static ScreenTextBlock applyFindScreenTextBlock(final TerminalDriver driver, final FindBy info,
+	static ScreenTextBlock applyFindScreenTextBlock(final TerminalDriver driver, final FindBy info,
 			final List<org.tn5250j.framework.tn5250.ScreenField> screenFields, final ScreenElement currentScreenField) {
 		final Screen5250 screen = driver.getSession().getScreen();
 		int currentPosition = 0;
 		if (currentScreenField != null) {
-			currentPosition = currentScreenField.endPos();
+			currentPosition = currentScreenField.endPos()+1;
 		}
 		if (info.row() > 0 && pos2row(currentPosition, screen.getColumns()) != info.row()) {
 			currentPosition = (info.row() - 1) * screen.getColumns();
 		}
+		final ScreenFieldReader reader = new ScreenFieldReader(driver);
 		if (info.row() > 0 && info.column() > 0) {
 			currentPosition = (info.row() - 1) * screen.getColumns() + info.column();
+			if(info.length() > 0){
+				//Read a specific screen block
+				ScreenTextBlock field = reader.read(info.row(), info.column(), info.length());
+				if (findMatches(info, field)) {
+					return field;
+				}
+				return null;
+			}
 		}
-		final ScreenFieldReader reader = new ScreenFieldReader(driver);
 		reader.seek(currentPosition);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null) {

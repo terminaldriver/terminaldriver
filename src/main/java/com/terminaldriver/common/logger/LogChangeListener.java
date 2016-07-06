@@ -1,5 +1,6 @@
 package com.terminaldriver.common.logger;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 import com.terminaldriver.common.TerminalDriverChangeListener;
@@ -7,7 +8,7 @@ import com.terminaldriver.common.logger.HTMLBuilder.HTMLLogInfo;
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.obj.ScreenField;
 
-public abstract class LogChangeListener implements TerminalDriverChangeListener {
+public abstract class LogChangeListener implements TerminalDriverChangeListener,Closeable {
 
 	HTMLLogInfo info = null;
 	final boolean verbose;
@@ -49,7 +50,11 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener 
 					info.addText("Screen updated." + (driver.acceptingInput() ? "Accepting input" : "Input inhibited"));
 					return;
 				}
-				addLog(info, verbose);
+				try {
+					addLog(info, verbose);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 			info = new HTMLLogInfo(screenString, null);
 		}
@@ -65,7 +70,7 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener 
 		}
 	}
 
-	abstract void addLog(HTMLLogInfo info, boolean verbose);
+	abstract void addLog(HTMLLogInfo info, boolean verbose) throws IOException;
 
 	public void screenChanged(final TerminalDriver driver) {
 		// If a screen change is happening under input inhibited, you can assume
@@ -77,7 +82,11 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener 
 			return;
 		}
 		if (info != null) {
-			addLog(info, verbose);
+			try {
+				addLog(info, verbose);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		info = new HTMLLogInfo(renderScreen(driver), null);
 		screenChangePending = !driver.acceptingInput();

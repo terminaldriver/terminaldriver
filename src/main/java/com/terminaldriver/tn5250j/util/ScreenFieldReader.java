@@ -27,6 +27,13 @@ public class ScreenFieldReader implements TN5250jConstants {
 		currentRow = pos2row(pos);
 		currentCol = pos2col(pos);
 	}
+	
+	public ScreenTextBlock read(final int row, final int col, final int length){
+		final int offset = bufferChar(row,col);
+		seek(offset + length);
+		String value = new String(sc.text,offset,length);
+		return new ScreenTextBlock(driver,value,row,col,length,String.valueOf(sc.attr[offset]));
+	}
 
 	public ScreenTextBlock readNotEmptyField() {
 		ScreenTextBlock result = readField();

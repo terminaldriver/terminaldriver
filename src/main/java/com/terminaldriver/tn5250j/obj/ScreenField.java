@@ -60,4 +60,8 @@ public class ScreenField extends ScreenElement {
 		driver.fireFieldSetString(this, value);
 		screenField.setString(value);
 	}
+	
+	public String toString(){
+		return screenField.getString();
+	}
 }

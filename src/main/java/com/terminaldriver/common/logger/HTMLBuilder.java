@@ -51,6 +51,9 @@ public class HTMLBuilder {
 		@Getter
 		@Setter
 		public String testName;
+		
+		@Getter
+		List<FieldInfo> fields = new ArrayList<FieldInfo>();
 
 		public HTMLLogInfo(final String screenHtml, final String logText) {
 			super();
@@ -63,6 +66,10 @@ public class HTMLBuilder {
 				logText = "";
 			}
 			logText += "<br>" + text;
+		}
+		
+		public static class FieldInfo {
+			
 		}
 	}
 

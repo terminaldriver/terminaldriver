@@ -1,5 +1,7 @@
 package com.terminaldriver.tn5250j.util;
 
+import javax.swing.text.AbstractDocument.ElementEdit;
+
 import com.terminaldriver.tn5250j.annotation.FindBy;
 import com.terminaldriver.tn5250j.annotation.How;
 import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
@@ -12,7 +14,9 @@ public class Find {
 			return false;
 		}
 		if (info.column() != 0 && element.startCol() != info.column()) {
-			return false;
+			if(element.startCol() > info.column() || element.startCol() + element.getLength() <= info.column()){
+				return false;
+			}
 		}
 		if (info.length() != 0 && element.getLength() != info.length()) {
 			return false;
