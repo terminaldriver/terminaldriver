@@ -76,7 +76,7 @@ public abstract class By {
 			throw new IllegalArgumentException("Cannot find elements when row is invalid.");
 		}
 
-		return new ByPosition(row, null);
+		return new ByPosition(row, null, null);
 	}
 
 	public static By column(final int column) {
@@ -84,7 +84,7 @@ public abstract class By {
 			throw new IllegalArgumentException("Cannot find elements when column is invalid.");
 		}
 
-		return new ByPosition(null, column);
+		return new ByPosition(null, column, null);
 	}
 
 	public static By position(final int row, final int column) {
@@ -95,7 +95,21 @@ public abstract class By {
 			throw new IllegalArgumentException("Cannot find elements when column is invalid.");
 		}
 
-		return new ByPosition(row, column);
+		return new ByPosition(row, column, null);
+	}
+
+	public static By textBlock(final int row, final int column, final int length) {
+		if (row < 1) {
+			throw new IllegalArgumentException("Cannot find elements when row is invalid.");
+		}
+		if (column < 1) {
+			throw new IllegalArgumentException("Cannot find elements when column is invalid.");
+		}
+		if (length < 1) {
+			throw new IllegalArgumentException("Cannot find elements when length is invalid.");
+		}
+
+		return new ByPosition(row, column, length);
 	}
 
 	/**
@@ -307,21 +321,23 @@ public abstract class By {
 
 		private final Integer row;
 		private final Integer column;
+		private final Integer length;
 
-		public ByPosition(final Integer row, final Integer column) {
+		public ByPosition(final Integer row, final Integer column, final Integer length) {
 			super();
 			this.row = row;
 			this.column = column;
+			this.length = length;
 		}
 
 		@Override
 		public List<ScreenElement> findElements(final TerminalDriver driver) {
-			return driver.findElementsByPosition(row, column);
+			return driver.findElementsByPosition(row, column, length);
 		}
 
 		@Override
 		public ScreenElement findElement(final TerminalDriver driver) {
-			return driver.findElementByPosition(row, column);
+			return driver.findElementByPosition(row, column, length);
 		}
 
 		@Override
@@ -331,7 +347,8 @@ public abstract class By {
 
 		@Override
 		public boolean matches(final ScreenElement element) {
-			return (column == null || element.startCol() == column) && (row == null || element.startRow() == row);
+			return (column == null || element.startCol() == column) && (row == null || element.startRow() == row)
+					&& (length == null || element.getLength() == length);
 		}
 	}
 

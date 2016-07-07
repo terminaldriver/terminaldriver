@@ -35,6 +35,17 @@ public class ScreenFieldReader implements TN5250jConstants {
 		return new ScreenTextBlock(driver,value,row,col,length,String.valueOf(screenContainer.attr[offset]));
 	}
 
+	public ScreenTextBlock readField(final int row, final int col){
+		final int offset = bufferChar(row,col);
+		seek(offset);
+		ScreenTextBlock field = readField();
+		if(field.startCol()<col){
+			String value = new String(screenContainer.text,offset,field.getLength() - (col-field.startCol()) + 1);
+			field= new ScreenTextBlock(driver,value,row,col,value.length(),String.valueOf(screenContainer.attr[offset]));
+		}
+		return field;
+	}
+
 	public ScreenTextBlock readNotEmptyField() {
 		ScreenTextBlock result = readField();
 		while (result != null && result.getString().trim().isEmpty()) {

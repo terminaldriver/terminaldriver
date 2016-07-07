@@ -257,7 +257,7 @@ public class TerminalDriver implements Closeable {
 		final ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null) {
-			if (attribute != ScreenAttribute.UNSET && !field.getAttr().equals(attribute.getCode())) {
+			if (attribute != ScreenAttribute.UNSET && field.getAttr().equals(attribute.getCode())) {
 				return field;
 			}
 		}
@@ -276,9 +276,17 @@ public class TerminalDriver implements Closeable {
 		return items;
 	}
 
-	public ScreenElement findElementByPosition(final Integer row, final Integer column) {
+	public ScreenElement findElementByPosition(final Integer row, final Integer column, final Integer length) {
 		final ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
+		//If both row and column are specified, return a (potential) partial text block
+		if(row != null && column != null){
+			if(length != null){
+				return reader.read(row,column,length);
+			}else{
+				return reader.readField(row,column);
+			}
+		}
 		while ((field = reader.readField()) != null) {
 			if ((column == null || field.startCol() == column) && (row == null || field.startRow() == row)) {
 				return field;
@@ -287,13 +295,17 @@ public class TerminalDriver implements Closeable {
 		return null;
 	}
 
-	public List<ScreenElement> findElementsByPosition(final Integer row, final Integer column) {
+	public List<ScreenElement> findElementsByPosition(final Integer row, final Integer column, Integer length) {
 		final List<ScreenElement> items = new ArrayList<ScreenElement>();
 		final ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
-		while ((field = reader.readField()) != null) {
-			if ((column == null || field.startCol() == column) && (row == null || field.startRow() == row)) {
-				items.add(field);
+		if(row != null && column != null){
+			items.add(findElementByPosition(row,column,length));
+		}else{
+			while ((field = reader.readField()) != null) {
+				if ((column == null || field.startCol() == column) && (row == null || field.startRow() == row)) {
+					items.add(field);
+				}
 			}
 		}
 		return items;
