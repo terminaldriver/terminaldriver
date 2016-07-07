@@ -40,6 +40,14 @@ public class TestBy {
 		assertEquals(1,element.startRow());
 		assertEquals("                Work with Members Using PDM             ",element.getString());
 	}
+	
+	@Test
+	public void testFindsByColor() throws Exception {
+		List<ScreenElement> elements = driver.findElements(By.attribute(ScreenAttribute.WHT));
+		assertNotNull(elements);
+		assertEquals(5,elements.size());
+		assertEquals("                Work with Members Using PDM             ",elements.get(0).getString());
+	}
 			
 	@Test
 	public void testFindByRow() throws Exception {
@@ -49,6 +57,19 @@ public class TestBy {
 		assertEquals(1,element.startCol());
 		assertEquals("File  . . . . . .",element.getString());
 	}
+	@Test
+	public void testFindsByRow() throws Exception {
+		List<ScreenElement> elements = driver.findElements(By.row(3));
+		assertNotNull(elements);
+		assertEquals(4,elements.size());
+		assertEquals(3,elements.get(0).startRow());
+		assertEquals(1,elements.get(0).startCol());
+		for(ScreenElement element:elements){
+			System.out.println(element.getClass());
+		}
+		assertEquals("File  . . . . . .",elements.get(0).getString());
+	}
+
 	@Test
 	public void testFindByPositionExact() throws Exception {
 		ScreenElement element = driver.findElement(By.position(3,2));
@@ -71,7 +92,14 @@ public class TestBy {
 		assertEquals(2,element.startCol());
 		assertEquals("File",element.getString());
 	}
-			
+	@Test
+	public void testFindByText() throws Exception {
+		ScreenElement element = driver.findElement(By.text("Work with Members Using PDM"));
+		assertNotNull(element);
+		assertEquals(1,element.startRow());
+		assertEquals(11,element.startCol());
+		assertEquals("                Work with Members Using PDM             ",element.getString());
+	}			
 	public static FindBy getFinder(String name) throws NoSuchFieldException, SecurityException{
 		return TestBy.class.getDeclaredField(name).getAnnotation(FindBy.class);
 	}

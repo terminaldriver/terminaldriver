@@ -40,6 +40,7 @@ public class MockScreenUtil {
 					copy(props.get("attr"),buffer);
 				}
 				if (plane ==PLANE_IS_ATTR_PLACE){
+					System.out.println(props.get("isAttr"));
 					copy(props.get("isAttr"),buffer);
 				}
 				if (plane ==PLANE_COLOR){

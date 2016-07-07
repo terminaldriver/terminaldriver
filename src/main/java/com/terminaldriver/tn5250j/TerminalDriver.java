@@ -257,7 +257,7 @@ public class TerminalDriver implements Closeable {
 		final ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null) {
-			if (attribute != ScreenAttribute.UNSET && field.getAttr().equals(attribute.getCode())) {
+			if (attribute == ScreenAttribute.UNSET || field.getAttr().equals(attribute.getCode())) {
 				return field;
 			}
 		}
@@ -269,7 +269,7 @@ public class TerminalDriver implements Closeable {
 		final ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null) {
-			if (attribute != ScreenAttribute.UNSET && !field.getAttr().equals(attribute.getCode())) {
+			if (attribute == ScreenAttribute.UNSET || field.getAttr().equals(attribute.getCode())) {
 				items.add(field);
 			}
 		}

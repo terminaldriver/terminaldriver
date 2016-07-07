@@ -79,13 +79,13 @@ public abstract class By {
 		return new ByPosition(row, null, null);
 	}
 
-	public static By column(final int column) {
-		if (column < 1) {
-			throw new IllegalArgumentException("Cannot find elements when column is invalid.");
-		}
-
-		return new ByPosition(null, column, null);
-	}
+//	public static By column(final int column) {
+//		if (column < 1) {
+//			throw new IllegalArgumentException("Cannot find elements when column is invalid.");
+//		}
+//
+//		return new ByPosition(null, column, null);
+//	}
 
 	public static By position(final int row, final int column) {
 		if (row < 1) {
