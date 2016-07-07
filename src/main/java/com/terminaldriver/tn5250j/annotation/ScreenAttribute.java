@@ -1,5 +1,7 @@
 package com.terminaldriver.tn5250j.annotation;
 
+import lombok.Getter;
+
 public enum ScreenAttribute {
 	
 	//https://www.ibm.com/support/knowledgecenter/ssw_i5_54/apis/dsm1f.htm
@@ -36,11 +38,11 @@ public enum ScreenAttribute {
 	PNK_UL_RI("=","Pink/Underscore/Reverse Image"),
 	BLU_UL(">","Blue/Underscore"),
 	ND_3F("?","Nondisplay");
+	@Getter
 	private String code;
+	@Getter
 	private String description;
-    public String getCode(){return code;}	
-    public String getDescription(){return description;}	
-    private ScreenAttribute(String code,String desc){this.code = code; this.description=desc;}
+    private ScreenAttribute(final String code,final String desc){this.code = code; this.description=desc;}
     public String getColor(){
     	if(code != null && !"Nondisplay".equals(description)){
     		if(description.contains("Reverse")){
@@ -52,21 +54,13 @@ public enum ScreenAttribute {
     	return "";
     }
     public boolean isUnderLine(){
-    	if(code != null && !"Nondisplay".equals(description)){
-    		if(description.contains("Underscore")){
-    			return true;
-    		}
-    	}
-    	return false;
+    	return description.contains("Underscore");
     }
     public boolean isNonDisplay(){
-    	if(code != null && "Nondisplay".equals(description)){
-   			return true;
-    	}
-    	return false;
+    	return "Nondisplay".equals(description);
     }
     
-	public static ScreenAttribute getAttrEnum(char currentAttr){
+	public static ScreenAttribute getAttrEnum(final char currentAttr){
 		for (ScreenAttribute attr : ScreenAttribute.values()) {
 			if (attr.getCode() != null && currentAttr == attr.getCode().charAt(0)) {
 				return attr;

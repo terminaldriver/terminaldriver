@@ -5,14 +5,21 @@ import org.tn5250j.framework.tn5250.Screen5250;
 
 public class ScreenDataContainer implements TN5250jConstants {
 
+	public char[] text;
+	public char[] attr;
+	public char[] isAttr;
+	public char[] color;
+	public char[] extended;
+	public final char[] graphic;
+	public final char[] field;
+
 	public ScreenDataContainer(final Screen5250 screen) {
 
-		final int startRow = 1;
-		final int startCol = 1;
-		final int endRow = screen.getRows();
-		final int endCol = screen.getColumns();
-
-		final int size = ((endCol - startCol) + 1) * ((endRow - startRow) + 1);
+		int startRow = 1;
+		int startCol = 1;
+		int endRow = screen.getRows();
+		int endCol = screen.getColumns();
+		int size = ((endCol - startCol) + 1) * ((endRow - startRow) + 1);
 
 		text = new char[size];
 		attr = new char[size];
@@ -41,11 +48,4 @@ public class ScreenDataContainer implements TN5250jConstants {
 		}
 	}
 
-	public char[] text;
-	public char[] attr;
-	public char[] isAttr;
-	public char[] color;
-	public char[] extended;
-	public final char[] graphic;
-	public final char[] field;
 }

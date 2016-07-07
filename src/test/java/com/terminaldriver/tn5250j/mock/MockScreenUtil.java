@@ -28,7 +28,7 @@ public class MockScreenUtil {
 				});
 		
 		final Screen5250 screen= new Screen5250(){
-			public synchronized int GetScreen(char buffer[], int bufferLength, int from,
+			public synchronized int GetScreen(char buffer[], int bufferLength, int from, //NOPMD
 					int length, int plane)
 			{
 				if (plane ==PLANE_TEXT){
@@ -56,7 +56,6 @@ public class MockScreenUtil {
 			}
 
 			private void copy(Object object, char[] buffer) {
-				System.out.println(">>" + object);
 				if(object instanceof String){
 					int to = Math.min(((String) object).length(), buffer.length);
 					for(int i=0; i<to; i++){

@@ -30,7 +30,7 @@ public enum Key{
 	ERASE_FIELD("[erasefld]");
 	
 	private String code;
-	Key(String code){this.code= code;}
+	Key(final String code){this.code= code;}
 	@Override
 	public String toString(){return code;}
 }

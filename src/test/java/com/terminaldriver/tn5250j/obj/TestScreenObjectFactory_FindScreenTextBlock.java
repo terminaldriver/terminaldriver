@@ -15,7 +15,6 @@ import org.junit.rules.TestName;
 
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.annotation.FindBy;
-import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
 import com.terminaldriver.tn5250j.mock.MockScreenUtil;
 
 
@@ -51,13 +50,13 @@ public class TestScreenObjectFactory_FindScreenTextBlock {
 	}
 	@Test
 	@FindBy(text="Work with Members Using PDM",row=8,column=3,length=9)
-	public void testFindByPositionLengthAndText_NoMatch() throws Exception {
+	public void testFindByPositionLengthAndTextNoMatch() throws Exception {
 		ScreenTextBlock screenField = ScreenObjectFactory.applyFindScreenTextBlock(driver,findBy,screenFields, currentScreenField);
 		assertNull(screenField);
 	}
 	@Test
 	@FindBy(text="8=Display",row=8,column=3,length=9)
-	public void testFindByPositionLengthAndText_Match() throws Exception {
+	public void testFindByPositionLengthAndTextMatch() throws Exception {
 		ScreenTextBlock screenField = ScreenObjectFactory.applyFindScreenTextBlock(driver,findBy,screenFields, currentScreenField);
 		assertNotNull(screenField);
 		assertEquals("8=Display",screenField.value);

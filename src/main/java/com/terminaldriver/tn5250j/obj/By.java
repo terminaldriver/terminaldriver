@@ -156,6 +156,7 @@ public abstract class By {
 		private final String id;
 
 		public ById(final String id) {
+			super();
 			this.id = id;
 		}
 
@@ -206,11 +207,11 @@ public abstract class By {
 		private final Position position;
 
 		public ByLabelText(final String labelText) {
-			this.labelText = labelText;
-			this.position = Position.LEFT;
+			this(labelText,Position.LEFT);
 		}
 
 		public ByLabelText(final String labelText, final Position position) {
+			super();
 			this.labelText = labelText;
 			this.position = position;
 		}
@@ -243,6 +244,7 @@ public abstract class By {
 		private final String text;
 
 		public ByText(final String text) {
+			super();
 			this.text = text;
 		}
 
@@ -274,6 +276,7 @@ public abstract class By {
 		private final ScreenAttribute attribute;
 
 		public ByAttribute(final ScreenAttribute attribute) {
+			super();
 			this.attribute = attribute;
 		}
 
@@ -306,6 +309,7 @@ public abstract class By {
 		private final Integer column;
 
 		public ByPosition(final Integer row, final Integer column) {
+			super();
 			this.row = row;
 			this.column = column;
 		}
@@ -338,6 +342,7 @@ public abstract class By {
 		private final List<By> bys;
 
 		public ByAnd(final By... by) {
+			super();
 			bys = Arrays.asList(by);
 		}
 

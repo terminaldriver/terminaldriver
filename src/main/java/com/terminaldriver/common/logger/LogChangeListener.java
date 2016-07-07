@@ -10,9 +10,9 @@ import com.terminaldriver.tn5250j.obj.ScreenField;
 
 public abstract class LogChangeListener implements TerminalDriverChangeListener,Closeable {
 
-	HTMLLogInfo info = null;
+	HTMLLogInfo info;
 	final boolean verbose;
-	boolean screenChangePending = false;
+	boolean screenChangePending;
 
 	public LogChangeListener() throws IOException {
 		this(false);
@@ -60,7 +60,7 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 		}
 		// If the screen was not accepting input when it changed, replace the
 		// log with when it does.
-		else if ((screenChangePending && driver.acceptingInput())) {
+		else if (screenChangePending && driver.acceptingInput()) {
 			screenChangePending = false;
 			info = new HTMLLogInfo(renderScreen(driver), info.getLogText());
 		} else {

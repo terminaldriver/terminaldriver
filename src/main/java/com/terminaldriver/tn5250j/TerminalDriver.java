@@ -20,7 +20,7 @@ import org.tn5250j.framework.tn5250.ScreenOIA;
 import com.terminaldriver.common.TerminalDriverChangeListener;
 import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
 import com.terminaldriver.tn5250j.obj.By;
-import com.terminaldriver.tn5250j.obj.Keys;
+import com.terminaldriver.tn5250j.obj.KeyStrokes;
 import com.terminaldriver.tn5250j.obj.ScreenDataContainer;
 import com.terminaldriver.tn5250j.obj.ScreenElement;
 import com.terminaldriver.tn5250j.obj.ScreenField;
@@ -46,12 +46,13 @@ public class TerminalDriver implements Closeable {
 	int port;
 
 	@Getter
-	Keys keys = new Keys(this);
+	KeyStrokes keys = new KeyStrokes(this);
 
-	final TerminalDriverSessionListener terminalDriverSessionListener = new TerminalDriverSessionListener();
-	final TerminalDriverScreenListener terminalDriverScreenListener = new TerminalDriverScreenListener();
-	final TerminDriverScreenOIAListener terminDriverScreenOIAListener = new TerminDriverScreenOIAListener();
+	final TerminalDriverSessionListener driverSessionListener = new TerminalDriverSessionListener();
+	final TerminalDriverScreenListener driverScreenListener = new TerminalDriverScreenListener();
+	final TerminDriverScreenOIAListener driverScreenOIAListener = new TerminDriverScreenOIAListener();
 	final List<TerminalDriverChangeListener> listeners = new ArrayList<TerminalDriverChangeListener>();
+	long markedUpdate;
 
 	public TerminalDriver() {
 		super();
@@ -96,10 +97,10 @@ public class TerminalDriver implements Closeable {
 
 		session = SessionManager.instance().openSession(sessionProperties, "", "");
 
-		session.addSessionListener(terminalDriverSessionListener);
+		session.addSessionListener(driverSessionListener);
 
-		session.getScreen().addScreenListener(terminalDriverScreenListener);
-		session.getScreen().getOIA().addOIAListener(terminDriverScreenOIAListener);
+		session.getScreen().addScreenListener(driverScreenListener);
+		session.getScreen().getOIA().addOIAListener(driverScreenOIAListener);
 		session.connect();
 
 		for (int i = 1; i < 200 && !session.isConnected(); i++) {
@@ -129,10 +130,10 @@ public class TerminalDriver implements Closeable {
 	}
 
 	public boolean waitForScreen(final long timeOutMillis) {
-		final long screenChange = terminalDriverScreenListener.getLastScreenChange();
+		final long screenChange = driverScreenListener.getLastScreenChange();
 		final long stopTime = System.currentTimeMillis() + timeOutMillis;
 		while (System.currentTimeMillis() < stopTime) {
-			if (screenChange != terminalDriverScreenListener.getLastScreenChange()) {
+			if (screenChange != driverScreenListener.getLastScreenChange()) {
 				sleep(50);
 				return true;
 			}
@@ -159,14 +160,14 @@ public class TerminalDriver implements Closeable {
 	}
 
 	public boolean waitForUpdate(final long timeOutMillis) {
-		terminalDriverScreenListener.markUpdate();
+		driverScreenListener.markUpdate();
 		final long stopTime = System.currentTimeMillis() + timeOutMillis;
-		final boolean isChanged = terminalDriverScreenListener.waitForUpdate(stopTime);
+		final boolean isChanged = driverScreenListener.waitForUpdate(stopTime);
 		return isChanged;
 	}
 
 	public boolean waitForField(final By by, final long timeOutMillis) {
-		terminalDriverScreenListener.markUpdate();
+		driverScreenListener.markUpdate();
 		final long stopTime = System.currentTimeMillis() + timeOutMillis;
 		boolean isChanged = false;
 		do {
@@ -175,20 +176,20 @@ public class TerminalDriver implements Closeable {
 					return true;
 				}
 			}
-			isChanged = terminalDriverScreenListener.waitForUpdate(stopTime);
+			isChanged = driverScreenListener.waitForUpdate(stopTime);
 		} while (isChanged);
 		return false;
 	}
 
 	public boolean waitFor(final By by, final long timeOutMillis) {
-		terminalDriverScreenListener.markUpdate();
+		driverScreenListener.markUpdate();
 		final long stopTime = System.currentTimeMillis() + timeOutMillis;
 		boolean isChanged = false;
 		do {
 			if (by.findElement(this) != null) {
 				return true;
 			}
-			isChanged = terminalDriverScreenListener.waitForUpdate(stopTime);
+			isChanged = driverScreenListener.waitForUpdate(stopTime);
 		} while (isChanged);
 		return false;
 	}
@@ -313,19 +314,19 @@ public class TerminalDriver implements Closeable {
 	public class TerminalDriverScreenListener implements ScreenListener {
 
 		@Setter
-		boolean SuppressFullScreenEmpty = true;
+		boolean suppressFullScreenEmpty = true;
 
 		/**
 		 * Time in milliseconds of the last time the full screen was changed
 		 */
 		@Getter
-		long lastScreenChange = 0;
+		long lastScreenChange;
 		/**
 		 * Time in milliseconds of the last time the screen was partially
 		 * updated
 		 */
 		@Getter
-		long lastScreenUpdate = 0;
+		long lastScreenUpdate;
 
 		public void onScreenChanged(final int arg0, final int row1, final int col1, final int row2, final int col2) {
 
@@ -333,7 +334,7 @@ public class TerminalDriver implements Closeable {
 				fireScreenChanged();
 				// Suppress notification of a completely empty screen. Assuming
 				// content will follow promptly.
-				if (SuppressFullScreenEmpty && getScreenText().trim().isEmpty()) {
+				if (suppressFullScreenEmpty && getScreenText().trim().isEmpty()) {
 					return;
 				}
 				// Auto close messages window.
@@ -353,8 +354,6 @@ public class TerminalDriver implements Closeable {
 		public void onScreenSizeChanged(final int cols, final int rows) {
 			fireScreenSizeChanged(cols, rows);
 		}
-
-		long markedUpdate = 0;
 
 		public void markUpdate() {
 			markedUpdate = lastScreenUpdate;
@@ -383,11 +382,12 @@ public class TerminalDriver implements Closeable {
 		}
 	}
 
-	public Keys keys() {
+	public KeyStrokes keys() {
 		return keys;
 	}
 
-	public void fireFieldSetString(final ScreenField screenField, String value) {
+	public void fireFieldSetString(final ScreenField screenField, final String inputValue) {
+		String value = inputValue;
 		if (ScreenAttribute.getAttrEnum(screenField.getAttr().charAt(0)).isNonDisplay()) {
 			value = value.replaceAll(".", "*");
 		}

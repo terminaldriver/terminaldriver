@@ -23,10 +23,8 @@ public class ScreenObjectFactory {
 		try {
 			object = clazz.newInstance();
 			initElements(object, driver);
-		} catch (final InstantiationException e) {
-			e.printStackTrace();
-		} catch (final IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (final Exception e) {
+			throw new ObjectInitException(e);
 		}
 		return object;
 	}
@@ -57,14 +55,18 @@ public class ScreenObjectFactory {
 						foundAll = false;
 					}
 				} catch (final Exception e) {
-					e.printStackTrace();
+					throw new ObjectInitException(e);
 				}
 				continue;
 			}
 
 			if (field.isAnnotationPresent(Table.class)) {
 				final Table info = field.getAnnotation(Table.class);
-				currentScreenField = applyTableAnnotation(driver, page, info, field, screenFields, currentScreenField);
+				try {
+					currentScreenField = applyTableAnnotation(driver, page, info, field, screenFields, currentScreenField);
+				} catch (final Exception e) {
+					throw new ObjectInitException(e);
+				}
 				continue;
 			}
 
@@ -78,9 +80,9 @@ public class ScreenObjectFactory {
 							field.set(page, driver);
 						}
 				} catch (final IllegalArgumentException e) {
-					e.printStackTrace();
+					throw new ObjectInitException(e);
 				} catch (final IllegalAccessException e) {
-					e.printStackTrace();
+					throw new ObjectInitException(e);
 				}
 				continue;
 			}
@@ -90,56 +92,52 @@ public class ScreenObjectFactory {
 
 	static ScreenElement applyTableAnnotation(final TerminalDriver driver, final Object page, final Table info,
 			final Field field, final List<org.tn5250j.framework.tn5250.ScreenField> screenFields,
-			ScreenElement currentScreenField) {
+			ScreenElement currentScreenFieldParm) throws IllegalArgumentException, IllegalAccessException, InstantiationException {
 		
-			if (currentScreenField == null || info.row() > currentScreenField.startRow()){
-				if(info.row()>0){
-					for(org.tn5250j.framework.tn5250.ScreenField screenField : screenFields){
-						if(screenField.startRow() == info.row()){
-							currentScreenField = new ScreenTextBlock(driver, " ", info.row()-2, 80, 1, " ");
-						}
+		ScreenElement currentScreenField = currentScreenFieldParm; 
+	
+		if (info.row()>0 && (currentScreenField == null || info.row() > currentScreenField.startRow())){
+			for(final org.tn5250j.framework.tn5250.ScreenField screenField : screenFields){
+				if(screenField.startRow() == info.row()){
+					currentScreenField = new ScreenTextBlock(driver, " ", info.row()-2, 80, 1, " ");
+				}
+			}
+		}
+		if (!field.isAccessible()) {
+			field.setAccessible(true);
+		}
+		if (field.get(page) == null) {
+			field.set(page, new ArrayList<Object>());
+		}
+		@SuppressWarnings("unchecked")
+		List<Object> list = (List<Object>)field.get(page);
+		Class<?> newType = info.type();
+		Object tableObject = newType.newInstance();
+		boolean foundAllTable = true;
+		ScreenElement saveCurrentScreenField = currentScreenField;
+		while(foundAllTable == true){
+			for (final Field newfield : newType.getDeclaredFields()) {
+				if (newfield.isAnnotationPresent(FindBy.class)) {
+					if (!newfield.isAccessible()) {
+						newfield.setAccessible(true);
+					}
+					final FindBy findInfo = newfield.getAnnotation(FindBy.class);
+					final ScreenElement newScreenField = applyFind(newfield.getType(), driver, findInfo, screenFields,
+							currentScreenField);
+					if (newScreenField == null) {
+						foundAllTable = false;
+						currentScreenField = saveCurrentScreenField;
+					} else {
+						newfield.set(tableObject, newScreenField);
+						currentScreenField = newScreenField;
 					}
 				}
 			}
-		try {
-			if (!field.isAccessible()) {
-				field.setAccessible(true);
+			if(foundAllTable){
+				list.add(tableObject);
+				tableObject = newType.newInstance();
+				saveCurrentScreenField = currentScreenField;
 			}
-			if (field.get(page) == null) {
-				field.set(page, new ArrayList<Object>());
-			}
-			@SuppressWarnings("unchecked")
-			List<Object> list = (List<Object>)field.get(page);
-			Class<?> newType = info.type();
-			Object tableObject = newType.newInstance();
-			boolean foundAllTable = true;
-			ScreenElement saveCurrentScreenField = currentScreenField;
-			while(foundAllTable == true){
-				for (final Field newfield : newType.getDeclaredFields()) {
-					if (newfield.isAnnotationPresent(FindBy.class)) {
-						if (!newfield.isAccessible()) {
-							newfield.setAccessible(true);
-						}
-						final FindBy findInfo = newfield.getAnnotation(FindBy.class);
-						final ScreenElement newScreenField = applyFind(newfield.getType(), driver, findInfo, screenFields,
-								currentScreenField);
-						if (newScreenField != null) {
-							newfield.set(tableObject, newScreenField);
-							currentScreenField = newScreenField;
-						} else {
-							foundAllTable = false;
-							currentScreenField = saveCurrentScreenField;
-						}
-					}
-				}
-				if(foundAllTable){
-					list.add(tableObject);
-					tableObject = newType.newInstance();
-					saveCurrentScreenField = currentScreenField;
-				}
-			}
-		} catch (final Exception e) {
-			e.printStackTrace();
 		}
 		return currentScreenField;
 	}
@@ -214,5 +212,4 @@ public class ScreenObjectFactory {
 		}
 		return null;
 	}
-
 }

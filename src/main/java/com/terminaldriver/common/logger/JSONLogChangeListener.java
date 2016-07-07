@@ -8,7 +8,6 @@ import org.tn5250j.framework.tn5250.ScreenField;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.terminaldriver.common.logger.HTMLBuilder.HTMLLogInfo;
-import com.terminaldriver.common.logger.HTMLBuilder.HTMLLogInfo.FieldInfo;
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.obj.ScreenDataContainer;
 

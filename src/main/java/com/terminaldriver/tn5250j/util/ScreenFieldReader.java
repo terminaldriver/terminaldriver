@@ -8,7 +8,7 @@ import com.terminaldriver.tn5250j.obj.ScreenDataContainer;
 import com.terminaldriver.tn5250j.obj.ScreenTextBlock;
 
 public class ScreenFieldReader implements TN5250jConstants {
-	final ScreenDataContainer sc;
+	final ScreenDataContainer screenContainer;
 	int cols;
 	int rows;
 	int currentRow = 1;
@@ -17,7 +17,7 @@ public class ScreenFieldReader implements TN5250jConstants {
 
 	public ScreenFieldReader(final TerminalDriver driver) {
 		final Screen5250 screen = driver.getSession().getScreen();
-		sc = new ScreenDataContainer(screen);
+		screenContainer = new ScreenDataContainer(screen);
 		rows = screen.getRows();
 		cols = screen.getColumns();
 		this.driver = driver;
@@ -31,8 +31,8 @@ public class ScreenFieldReader implements TN5250jConstants {
 	public ScreenTextBlock read(final int row, final int col, final int length){
 		final int offset = bufferChar(row,col);
 		seek(offset + length);
-		String value = new String(sc.text,offset,length);
-		return new ScreenTextBlock(driver,value,row,col,length,String.valueOf(sc.attr[offset]));
+		String value = new String(screenContainer.text,offset,length);
+		return new ScreenTextBlock(driver,value,row,col,length,String.valueOf(screenContainer.attr[offset]));
 	}
 
 	public ScreenTextBlock readNotEmptyField() {
@@ -45,19 +45,19 @@ public class ScreenFieldReader implements TN5250jConstants {
 
 	public ScreenTextBlock readField() {
 		try {
-			if (sc.isAttr[bufferChar(currentRow, currentCol)] == 1) {
+			if (screenContainer.isAttr[bufferChar(currentRow, currentCol)] == 1) {
 				advance();
 			}
 			final int startBuffer = bufferChar(currentRow, currentCol);
-			while (advance() && sc.isAttr[bufferChar(currentRow, currentCol)] != 1) {
+			while (advance() && screenContainer.isAttr[bufferChar(currentRow, currentCol)] != 1) {
 			}
 			final int endBuffer = bufferChar(currentRow, currentCol);
 			if (endBuffer == startBuffer) {
 				return null;
 			}
-			final String content = new String(sc.text).substring(startBuffer, endBuffer);
+			final String content = new String(screenContainer.text).substring(startBuffer, endBuffer);
 			final ScreenTextBlock retval = new ScreenTextBlock(driver, content, pos2row(startBuffer),
-					pos2col(startBuffer), endBuffer - startBuffer, Character.valueOf(sc.attr[startBuffer]).toString());
+					pos2col(startBuffer), endBuffer - startBuffer, Character.valueOf(screenContainer.attr[startBuffer]).toString());
 			return retval;
 		} catch (final ArrayIndexOutOfBoundsException e) {
 			if (currentRow > rows) {

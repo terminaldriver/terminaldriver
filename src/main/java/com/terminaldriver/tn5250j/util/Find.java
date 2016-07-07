@@ -1,7 +1,5 @@
 package com.terminaldriver.tn5250j.util;
 
-import javax.swing.text.AbstractDocument.ElementEdit;
-
 import com.terminaldriver.tn5250j.annotation.FindBy;
 import com.terminaldriver.tn5250j.annotation.How;
 import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
@@ -24,10 +22,7 @@ public class Find {
 		if (info.attribute() != ScreenAttribute.UNSET && !element.getAttr().equals(info.attribute().getCode())) {
 			return false;
 		}
-		if (!info.text().equals("") && !info.text().trim().equals(element.getString().trim())) {
-			return false;
-		}
-		return true;
+		return info.text().equals("") || info.text().trim().equals(element.getString().trim());
 	}
 
 	public static String toString(final FindBy findBy) {
@@ -48,7 +43,7 @@ public class Find {
 		if (!findBy.text().equals("")) {
 			sb.append(String.format("text: %s ", findBy.text())).append(", ");
 		}
-		sb.append("]");
+		sb.append(']');
 		return sb.toString();
 	}
 
