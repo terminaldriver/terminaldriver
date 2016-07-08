@@ -19,10 +19,35 @@ public class ScreenUtils {
 	/**
 	 * Verifies that all the @FindBy annotations on the give page object are
 	 * present on the current screen.
-	 * 
+	 *
+	 * @param page
+	 * @param driver
+	 * @return
+	 */
+	public static boolean verifyScreen(final Object page, final TerminalDriver driver) {
+		return verifyScreen(page.getClass(), driver);
+	}
+
+	/**
+	 * Verifies that all the @FindBy annotations on the give page object class
+	 * are present on the current screen.
+	 *
 	 * @param clazz
 	 * @param driver
 	 * @return
+	 */
+	public static boolean verifyScreen(final Class<?> clazz, final TerminalDriver driver) {
+		final FindBy result = ScreenUtils.checkScreen(clazz, driver);
+		return result == null;
+	}
+
+	/**
+	 * Checks that all the @FindBy annotations that identify the give page
+	 * object class are present on the current screen.
+	 *
+	 * @param clazz
+	 * @param driver
+	 * @return FindBy that does not match if any.
 	 */
 	public static FindBy checkScreen(final Class<?> clazz, final TerminalDriver driver) {
 		final IdentifyBy info = clazz.getAnnotation(IdentifyBy.class);
@@ -41,7 +66,7 @@ public class ScreenUtils {
 
 	/**
 	 * Verifies that the given @FindBy is found on the screen
-	 * 
+	 *
 	 * @param findBy
 	 * @param driver
 	 * @return
@@ -63,11 +88,13 @@ public class ScreenUtils {
 		}
 		reader.seek(currentPosition);
 
+		// Look for fields first
 		final ScreenField screenField = applyFindScreenField(driver, findBy, currentPosition);
 		if (screenField != null) {
 			reader.seek(screenField.endPos() + 1);
 			return screenField;
 		}
+		// Look for text
 		return applyFindScreenTextBlock(driver, findBy, reader, currentPosition);
 	}
 

@@ -122,8 +122,8 @@ public class TerminalDriver implements Closeable {
 
 	public void close() throws IOException {
 		session.disconnect();
-		for(TerminalDriverChangeListener listener : listeners){
-			if(listener instanceof Closeable){
+		for (final TerminalDriverChangeListener listener : listeners) {
+			if (listener instanceof Closeable) {
 				((Closeable) listener).close();
 			}
 		}
@@ -279,12 +279,13 @@ public class TerminalDriver implements Closeable {
 	public ScreenElement findElementByPosition(final Integer row, final Integer column, final Integer length) {
 		final ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
-		//If both row and column are specified, return a (potential) partial text block
-		if(row != null && column != null){
-			if(length != null){
-				return reader.read(row,column,length);
-			}else{
-				return reader.readField(row,column);
+		// If both row and column are specified, return a (potential) partial
+		// text block
+		if (row != null && column != null) {
+			if (length != null) {
+				return reader.read(row, column, length);
+			} else {
+				return reader.readField(row, column);
 			}
 		}
 		while ((field = reader.readField()) != null) {
@@ -295,13 +296,13 @@ public class TerminalDriver implements Closeable {
 		return null;
 	}
 
-	public List<ScreenElement> findElementsByPosition(final Integer row, final Integer column, Integer length) {
+	public List<ScreenElement> findElementsByPosition(final Integer row, final Integer column, final Integer length) {
 		final List<ScreenElement> items = new ArrayList<ScreenElement>();
 		final ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
-		if(row != null && column != null){
-			items.add(findElementByPosition(row,column,length));
-		}else{
+		if (row != null && column != null) {
+			items.add(findElementByPosition(row, column, length));
+		} else {
 			while ((field = reader.readField()) != null) {
 				if ((column == null || field.startCol() == column) && (row == null || field.startRow() == row)) {
 					items.add(field);
@@ -431,8 +432,8 @@ public class TerminalDriver implements Closeable {
 			listener.screenChanged(this);
 		}
 	}
-	
-	private void fireNote(String note){
+
+	private void fireNote(final String note) {
 		for (final TerminalDriverChangeListener listener : listeners) {
 			listener.note(note);
 		}

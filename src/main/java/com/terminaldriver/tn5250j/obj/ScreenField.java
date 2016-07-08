@@ -57,19 +57,22 @@ public class ScreenField extends ScreenElement {
 		return screenField.getString();
 	}
 
+	@Override
 	public void setString(final String value) {
-		if(!isEditable()){
+		if (!isEditable()) {
 			throw new FieldNotEditableException(this);
 		}
 		driver.fireFieldSetString(this, value);
 		screenField.setString(value);
 	}
-	
-	public String toString(){
+
+	@Override
+	public String toString() {
 		return screenField.getString();
 	}
-	
-	public boolean isEditable(){
+
+	@Override
+	public boolean isEditable() {
 		return !screenField.isBypassField();
 	}
 }

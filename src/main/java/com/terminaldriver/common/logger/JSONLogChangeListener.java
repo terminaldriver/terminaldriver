@@ -36,13 +36,13 @@ public class JSONLogChangeListener extends LogChangeListener {
 		sb.append(container.color).append("\r\n");
 		sb.append(container.extended).append("\r\n");
 		sb.append(container.graphic).append("\r\n");
-		//sb.append("[");
+		// sb.append("[");
 		boolean firstfield = true;
 		for (final ScreenField fld : driver.getSession().getScreen().getScreenFields().getFields()) {
-			if(!firstfield){
+			if (!firstfield) {
 				sb.append(",");
 			}
-			firstfield=false;
+			firstfield = false;
 			sb.append("{\"string\":\"").append(fld.getString()).append("\"");
 			sb.append(",\"fieldId\":").append(fld.getFieldId());
 			sb.append(",\"attr\":").append(fld.getAttr());
@@ -60,7 +60,7 @@ public class JSONLogChangeListener extends LogChangeListener {
 			sb.append(",\"highlightedAttr\":").append(fld.getHighlightedAttr());
 			sb.append("}");
 		}
-		//sb.append("]");
+		// sb.append("]");
 		return sb.toString();
 	}
 
@@ -81,10 +81,10 @@ public class JSONLogChangeListener extends LogChangeListener {
 		generator.writeStringField("extended", screenInfo[4]);
 		generator.writeStringField("graphic", screenInfo[5]);
 		generator.writeStringField("description", info.getLogText());
-		if(screenInfo.length>6){
-		generator.writeArrayFieldStart("fields");
-		generator.writeRaw(screenInfo[6]);
-		generator.writeEndArray();
+		if (screenInfo.length > 6) {
+			generator.writeArrayFieldStart("fields");
+			generator.writeRaw(screenInfo[6]);
+			generator.writeEndArray();
 		}
 		generator.writeEndObject();
 	}

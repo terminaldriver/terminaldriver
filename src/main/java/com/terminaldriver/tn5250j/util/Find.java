@@ -12,7 +12,7 @@ public class Find {
 			return false;
 		}
 		if (info.column() != 0 && element.startCol() != info.column()) {
-			if(element.startCol() > info.column() || element.startCol() + element.getLength() <= info.column()){
+			if (element.startCol() > info.column() || element.startCol() + element.getLength() <= info.column()) {
 				return false;
 			}
 		}

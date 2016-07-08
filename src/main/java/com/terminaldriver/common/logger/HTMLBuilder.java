@@ -51,7 +51,7 @@ public class HTMLBuilder {
 		@Getter
 		@Setter
 		public String testName;
-		
+
 		@Getter
 		List<FieldInfo> fields = new ArrayList<FieldInfo>();
 
@@ -67,25 +67,27 @@ public class HTMLBuilder {
 			}
 			logText += "<br>" + text;
 		}
-		
+
 		public static class FieldInfo {
-			
+
 		}
 	}
 
 	public void addLog(final HTMLLogInfo info) {
-		addLog(info,false);
+		addLog(info, false);
 	}
+
 	/**
 	 * Auto combine two subsequent identical screens, unless verbose = true
+	 * 
 	 * @param info
 	 * @param verbose
 	 */
-	public void addLog(final HTMLLogInfo info,boolean verbose) {
-		if(!verbose && info != null && infos.size()>0 ){
-			HTMLLogInfo lastone = infos.get(infos.size()-1);
-			if(lastone.getScreenHtml().equals(info.getScreenHtml())){
-				if(info.getLogText() != null && !info.getLogText().trim().isEmpty()){
+	public void addLog(final HTMLLogInfo info, final boolean verbose) {
+		if (!verbose && info != null && infos.size() > 0) {
+			final HTMLLogInfo lastone = infos.get(infos.size() - 1);
+			if (lastone.getScreenHtml().equals(info.getScreenHtml())) {
+				if (info.getLogText() != null && !info.getLogText().trim().isEmpty()) {
 					lastone.addText("Same screen.");
 					lastone.addText(info.getLogText().trim());
 				}

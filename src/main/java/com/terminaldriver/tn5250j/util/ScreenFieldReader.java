@@ -1,14 +1,15 @@
 package com.terminaldriver.tn5250j.util;
 
+import static com.terminaldriver.tn5250j.util.ScreenUtils.pos2col;
+import static com.terminaldriver.tn5250j.util.ScreenUtils.pos2row;
+import static com.terminaldriver.tn5250j.util.ScreenUtils.rowcol2pos;
+
 import org.tn5250j.TN5250jConstants;
 import org.tn5250j.framework.tn5250.Screen5250;
 
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.obj.ScreenDataContainer;
 import com.terminaldriver.tn5250j.obj.ScreenTextBlock;
-import static com.terminaldriver.tn5250j.util.ScreenUtils.pos2row;
-import static com.terminaldriver.tn5250j.util.ScreenUtils.pos2col;
-import static com.terminaldriver.tn5250j.util.ScreenUtils.rowcol2pos;
 
 public class ScreenFieldReader implements TN5250jConstants {
 	final ScreenDataContainer screenContainer;
@@ -27,24 +28,26 @@ public class ScreenFieldReader implements TN5250jConstants {
 	}
 
 	public void seek(final int pos) {
-		currentRow = pos2row(pos,cols);
-		currentCol = pos2col(pos,cols);
-	}
-	
-	public ScreenTextBlock read(final int row, final int col, final int length){
-		final int offset = rowcol2pos(row,col,cols);
-		seek(offset + length);
-		String value = new String(screenContainer.text,offset,length);
-		return new ScreenTextBlock(driver,value,row,col,length,String.valueOf(screenContainer.attr[offset]));
+		currentRow = pos2row(pos, cols);
+		currentCol = pos2col(pos, cols);
 	}
 
-	public ScreenTextBlock readField(final int row, final int col){
-		final int offset = rowcol2pos(row,col,cols);
+	public ScreenTextBlock read(final int row, final int col, final int length) {
+		final int offset = rowcol2pos(row, col, cols);
+		seek(offset + length);
+		final String value = new String(screenContainer.text, offset, length);
+		return new ScreenTextBlock(driver, value, row, col, length, String.valueOf(screenContainer.attr[offset]));
+	}
+
+	public ScreenTextBlock readField(final int row, final int col) {
+		final int offset = rowcol2pos(row, col, cols);
 		seek(offset);
 		ScreenTextBlock field = readField();
-		if(field.startCol()<col){
-			String value = new String(screenContainer.text,offset,field.getLength() - (col-field.startCol()) + 1);
-			field= new ScreenTextBlock(driver,value,row,col,value.length(),String.valueOf(screenContainer.attr[offset]));
+		if (field.startCol() < col) {
+			final String value = new String(screenContainer.text, offset,
+					field.getLength() - (col - field.startCol()) + 1);
+			field = new ScreenTextBlock(driver, value, row, col, value.length(),
+					String.valueOf(screenContainer.attr[offset]));
 		}
 		return field;
 	}
@@ -70,8 +73,9 @@ public class ScreenFieldReader implements TN5250jConstants {
 				return null;
 			}
 			final String content = new String(screenContainer.text).substring(startBuffer, endBuffer);
-			final ScreenTextBlock retval = new ScreenTextBlock(driver, content, pos2row(startBuffer,cols),
-					pos2col(startBuffer,cols), endBuffer - startBuffer, Character.valueOf(screenContainer.attr[startBuffer]).toString());
+			final ScreenTextBlock retval = new ScreenTextBlock(driver, content, pos2row(startBuffer, cols),
+					pos2col(startBuffer, cols), endBuffer - startBuffer,
+					Character.valueOf(screenContainer.attr[startBuffer]).toString());
 			return retval;
 		} catch (final ArrayIndexOutOfBoundsException e) {
 			if (currentRow > rows) {
@@ -90,11 +94,9 @@ public class ScreenFieldReader implements TN5250jConstants {
 		}
 		return true;
 	}
-	
-	public int getCurrentPosition(){
-		return rowcol2pos(currentRow, currentCol,cols);
+
+	public int getCurrentPosition() {
+		return rowcol2pos(currentRow, currentCol, cols);
 	}
-
-
 
 }

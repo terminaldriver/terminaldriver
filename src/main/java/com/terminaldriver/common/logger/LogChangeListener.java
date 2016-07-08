@@ -8,7 +8,7 @@ import com.terminaldriver.common.logger.HTMLBuilder.HTMLLogInfo;
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.obj.ScreenField;
 
-public abstract class LogChangeListener implements TerminalDriverChangeListener,Closeable {
+public abstract class LogChangeListener implements TerminalDriverChangeListener, Closeable {
 
 	HTMLLogInfo info;
 	final boolean verbose;
@@ -52,7 +52,7 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 				}
 				try {
 					addLog(info, verbose);
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -84,7 +84,7 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 		if (info != null) {
 			try {
 				addLog(info, verbose);
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 			}
 		}
