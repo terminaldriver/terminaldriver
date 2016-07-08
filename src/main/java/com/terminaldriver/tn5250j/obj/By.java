@@ -391,7 +391,7 @@ public abstract class By {
 		@Override
 		public String toString() {
 			final StringBuilder sb = new StringBuilder();
-			sb.append("By.compound {");
+			sb.append("By.and {");
 			for (final By b : bys) {
 				sb.append(b.toString()).append(",");
 			}

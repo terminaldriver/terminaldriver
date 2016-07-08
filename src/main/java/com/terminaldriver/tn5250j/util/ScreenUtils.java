@@ -1,11 +1,9 @@
 package com.terminaldriver.tn5250j.util;
 
 import static com.terminaldriver.tn5250j.util.Find.findMatches;
-import static com.terminaldriver.tn5250j.util.ScreenUtils.pos2row;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.tn5250j.framework.tn5250.Screen5250;
 
@@ -19,7 +17,9 @@ import com.terminaldriver.tn5250j.obj.ScreenTextBlock;
 public class ScreenUtils {
 
 	/**
-	 * Verifies that all the @FindBy annotations on the give page object are present on the current screen.
+	 * Verifies that all the @FindBy annotations on the give page object are
+	 * present on the current screen.
+	 * 
 	 * @param clazz
 	 * @param driver
 	 * @return
@@ -32,8 +32,7 @@ public class ScreenUtils {
 
 		final ScreenFieldReader reader = new ScreenFieldReader(driver);
 		for (final FindBy findBy : info.value()) {
-			boolean found = checkFindBy(driver, reader, findBy) != null;
-			if (!found) {
+			if (checkFindBy(driver, reader, findBy) == null) {
 				return findBy;
 			}
 		}
@@ -41,17 +40,19 @@ public class ScreenUtils {
 	}
 
 	/**
-	 * Verifies that the given @FindBy is found on the screen 
+	 * Verifies that the given @FindBy is found on the screen
+	 * 
 	 * @param findBy
 	 * @param driver
 	 * @return
 	 */
 	public static boolean checkFindBy(final FindBy findBy, final TerminalDriver driver) {
 		final ScreenFieldReader reader = new ScreenFieldReader(driver);
-		return checkFindBy(driver,reader,findBy) != null;
+		return checkFindBy(driver, reader, findBy) != null;
 	}
-	
-	private static ScreenElement checkFindBy(TerminalDriver driver, final ScreenFieldReader reader, final FindBy findBy) {
+
+	private static ScreenElement checkFindBy(final TerminalDriver driver, final ScreenFieldReader reader,
+			final FindBy findBy) {
 		final Screen5250 screen = driver.getSession().getScreen();
 		int currentPosition = reader.getCurrentPosition();
 		if (findBy.row() > 0 && pos2row(currentPosition, screen.getColumns()) != findBy.row()) {
@@ -61,15 +62,15 @@ public class ScreenUtils {
 			currentPosition = (findBy.row() - 1) * screen.getColumns() + findBy.column();
 		}
 		reader.seek(currentPosition);
-		
-		ScreenField screenField = applyFindScreenField(driver, findBy, currentPosition);
-		if(screenField != null){
-			reader.seek(screenField.endPos()+1);
+
+		final ScreenField screenField = applyFindScreenField(driver, findBy, currentPosition);
+		if (screenField != null) {
+			reader.seek(screenField.endPos() + 1);
 			return screenField;
 		}
-		return applyFindScreenTextBlock(driver, findBy, reader,currentPosition);
+		return applyFindScreenTextBlock(driver, findBy, reader, currentPosition);
 	}
-	
+
 	public static ScreenElement applyFind(final Class<?> targetClazz, final TerminalDriver driver, final FindBy info,
 			final int currentPosition) {
 		if (targetClazz.equals(ScreenField.class)) {
@@ -85,11 +86,11 @@ public class ScreenUtils {
 				.asList(driver.getSession().getScreen().getScreenFields().getFields());
 
 		int currentIndex = 0;
-		while(currentIndex < screenFields.size()){
-			//Forward to where current index is add
-			if(screenFields.get(currentIndex).endPos() > currentPositionParm){
+		while (currentIndex < screenFields.size()) {
+			// Forward to where current index is add
+			if (screenFields.get(currentIndex).endPos() > currentPositionParm) {
 				final ScreenField thisScreen = new ScreenField(driver, screenFields.get(currentIndex++));
-				//Make sure it matches
+				// Make sure it matches
 				if (findMatches(info, thisScreen)) {
 					return thisScreen;
 				}
@@ -98,7 +99,7 @@ public class ScreenUtils {
 		}
 		return null;
 	}
-	
+
 	public static ScreenTextBlock applyFindScreenTextBlock(final TerminalDriver driver, final FindBy info,
 			final ScreenFieldReader reader, final int currentPositionParm) {
 		final Screen5250 screen = driver.getSession().getScreen();
@@ -106,12 +107,12 @@ public class ScreenUtils {
 		if (info.row() > 0 && pos2row(currentPosition, screen.getColumns()) != info.row()) {
 			currentPosition = (info.row() - 1) * screen.getColumns();
 		}
-		
+
 		if (info.row() > 0 && info.column() > 0) {
 			currentPosition = (info.row() - 1) * screen.getColumns() + info.column();
-			if(info.length() > 0){
-				//Read a specific screen block
-				ScreenTextBlock field = reader.read(info.row(), info.column(), info.length());
+			if (info.length() > 0) {
+				// Read a specific screen block
+				final ScreenTextBlock field = reader.read(info.row(), info.column(), info.length());
 				if (findMatches(info, field)) {
 					return field;
 				}
@@ -126,7 +127,7 @@ public class ScreenUtils {
 			}
 		}
 		return null;
-	}	
+	}
 
 	public static int pos2row(final int pos, final int cols) {
 		return Math.max(1, pos / cols + 1);
@@ -135,7 +136,7 @@ public class ScreenUtils {
 	public static int pos2col(final int pos, final int cols) {
 		return Math.max(1, pos % cols);
 	}
-	
+
 	public static int rowcol2pos(final int row, final int col, final int colsPerRow) {
 		return ((row - 1) * colsPerRow) + col - 1;
 	}
