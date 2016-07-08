@@ -64,9 +64,6 @@ public class TestBy {
 		assertEquals(4,elements.size());
 		assertEquals(3,elements.get(0).startRow());
 		assertEquals(1,elements.get(0).startCol());
-		for(ScreenElement element:elements){
-			System.out.println(element.getClass());
-		}
 		assertEquals("File  . . . . . .",elements.get(0).getString());
 	}
 

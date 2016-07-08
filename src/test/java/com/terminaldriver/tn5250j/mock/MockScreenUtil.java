@@ -32,15 +32,12 @@ public class MockScreenUtil {
 					int length, int plane)
 			{
 				if (plane ==PLANE_TEXT){
-					System.out.println(props.get("text"));
 					copy(props.get("text"),buffer);
 				}
 				if (plane ==PLANE_ATTR){
-					System.out.println(props.get("attr"));
 					copy(props.get("attr"),buffer);
 				}
 				if (plane ==PLANE_IS_ATTR_PLACE){
-					System.out.println(props.get("isAttr"));
 					copy(props.get("isAttr"),buffer);
 				}
 				if (plane ==PLANE_COLOR){

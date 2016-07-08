@@ -118,7 +118,6 @@ public class ScreenObjectFactory {
 						newfield.setAccessible(true);
 					}
 					final FindBy findInfo = newfield.getAnnotation(FindBy.class);
-					System.out.println("apply");
 					final ScreenElement newScreenField = applyFind(newfield.getType(), driver, findInfo,
 							currentScreenField.endPos() + 1);
 					if (newScreenField == null) {
