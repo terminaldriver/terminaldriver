@@ -14,6 +14,7 @@ import org.tn5250j.framework.tn5250.Screen5250;
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.annotation.FindBy;
 import com.terminaldriver.tn5250j.annotation.Table;
+import com.terminaldriver.tn5250j.exceptions.ObjectInitException;
 import com.terminaldriver.tn5250j.util.ScreenFieldReader;
 
 public class ScreenObjectFactory {

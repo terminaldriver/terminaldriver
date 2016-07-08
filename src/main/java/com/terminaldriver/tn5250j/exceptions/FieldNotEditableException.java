@@ -1,4 +1,8 @@
-package com.terminaldriver.tn5250j.obj;
+package com.terminaldriver.tn5250j.exceptions;
+
+import com.terminaldriver.tn5250j.obj.ScreenElement;
+import com.terminaldriver.tn5250j.obj.ScreenField;
+import com.terminaldriver.tn5250j.obj.ScreenTextBlock;
 
 import lombok.Getter;
 

@@ -1,4 +1,4 @@
-package com.terminaldriver.tn5250j.obj;
+package com.terminaldriver.tn5250j.exceptions;
 
 public class InvalidKeyException extends RuntimeException {
 
