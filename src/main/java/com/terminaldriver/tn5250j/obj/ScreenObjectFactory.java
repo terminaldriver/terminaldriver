@@ -1,7 +1,7 @@
 package com.terminaldriver.tn5250j.obj;
 
 import static com.terminaldriver.tn5250j.util.Find.findMatches;
-import static com.terminaldriver.tn5250j.util.ScreenUtils.assertScreen;
+import static com.terminaldriver.tn5250j.Assert.assertScreen;
 import static com.terminaldriver.tn5250j.util.ScreenUtils.pos2row;
 
 import java.lang.reflect.Field;

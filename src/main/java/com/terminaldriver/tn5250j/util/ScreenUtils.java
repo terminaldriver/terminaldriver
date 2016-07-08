@@ -13,26 +13,6 @@ import com.terminaldriver.tn5250j.obj.ScreenTextBlock;
 
 public class ScreenUtils {
 
-	public static boolean verifyScreen(final Object page, final TerminalDriver driver) {
-		return verifyScreen(page.getClass(), driver);
-	}
-
-	public static boolean verifyScreen(final Class<?> clazz, final TerminalDriver driver) {
-		final FindBy result = checkScreen(clazz, driver);
-		return result == null;
-	}
-
-	public static void assertScreen(final Object page, final TerminalDriver driver) {
-		assertScreen(page.getClass(), driver);
-	}
-
-	public static void assertScreen(final Class<?> clazz, final TerminalDriver driver) {
-		final FindBy result = checkScreen(clazz, driver);
-		if (result != null) {
-			throw new NoSuchElementException("Page does not match: " + Find.toString(result));
-		}
-	}
-
 	public static FindBy checkScreen(final Class<?> clazz, final TerminalDriver driver) {
 		final Screen5250 screen = driver.getSession().getScreen();
 		final IdentifyBy info = clazz.getAnnotation(IdentifyBy.class);
