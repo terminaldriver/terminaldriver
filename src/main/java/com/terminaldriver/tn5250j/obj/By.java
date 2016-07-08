@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
+import com.terminaldriver.tn5250j.util.ScreenUtils;
 
 /**
  * Mechanism used to locate elements within a screen.
@@ -283,7 +284,7 @@ public abstract class By {
 
 		@Override
 		public boolean matches(final ScreenElement element) {
-			return element != null && element.getString().trim().equals(text.trim());
+			return element != null && ScreenUtils.scrubZeros(element.getString().trim()).equals(text.trim());
 		}
 	}
 

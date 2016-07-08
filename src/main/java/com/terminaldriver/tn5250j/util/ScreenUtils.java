@@ -63,6 +63,10 @@ public class ScreenUtils {
 		}
 		return null;
 	}
+	
+	public static String scrubZeros(final String input){
+		return input.replace((char) 0 ,(char)32 );
+	}
 
 	/**
 	 * Verifies that the given @FindBy is found on the screen

@@ -26,6 +26,7 @@ import com.terminaldriver.tn5250j.obj.ScreenElement;
 import com.terminaldriver.tn5250j.obj.ScreenField;
 import com.terminaldriver.tn5250j.obj.ScreenTextBlock;
 import com.terminaldriver.tn5250j.util.ScreenFieldReader;
+import com.terminaldriver.tn5250j.util.ScreenUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -246,7 +247,7 @@ public class TerminalDriver implements Closeable {
 		final ScreenFieldReader reader = new ScreenFieldReader(this);
 		ScreenTextBlock field = null;
 		while ((field = reader.readField()) != null) {
-			if (text != null && field.getString() != null && text.trim().equals(field.getString().trim())) {
+			if (text != null && field.getString() != null && text.trim().equals(ScreenUtils.scrubZeros(field.getString().trim()))) {
 				items.add(field);
 			}
 		}
@@ -352,7 +353,8 @@ public class TerminalDriver implements Closeable {
 				}
 				// Auto close messages window.
 				final ScreenElement element = findElement(By.and(By.row(1), By.attribute(ScreenAttribute.WHT)));
-				if (element != null && element.getString().trim().equals("Display Program Messages")
+				if (element != null && (element.getString().trim().equals("Display Program Messages")
+						 || element.getString().trim().equals("Display Messages"))
 						&& acceptingInput()) {
 					fireNote("Closing messages window");
 					keys().enter();
