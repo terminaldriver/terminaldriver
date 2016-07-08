@@ -16,22 +16,23 @@ import org.junit.rules.TestName;
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.annotation.FindBy;
 import com.terminaldriver.tn5250j.mock.MockScreenUtil;
+import com.terminaldriver.tn5250j.util.ScreenFieldReader;
+import com.terminaldriver.tn5250j.util.ScreenUtils;
 
 
 public class TestScreenObjectFactory_FindScreenTextBlock {
 	TerminalDriver driver;
-	List<org.tn5250j.framework.tn5250.ScreenField> screenFields;
-	ScreenElement currentScreenField;
+	int currentPosition;
 	@Rule public TestName testName = new TestName();
 	FindBy findBy;
+	ScreenFieldReader reader;
 	
 	@Before
 	public void setUp() throws Exception{
 		final InputStream data = getClass().getResourceAsStream("/com/terminaldriver/tn5250j/util/wrkmbrpdm.json");
 		driver = MockScreenUtil.createTestDriver(data);
-		screenFields = Arrays.asList(driver.getSession().getScreen().getScreenFields().getFields());
-		currentScreenField=null;
 		findBy = getClass().getMethod(testName.getMethodName()).getAnnotation(FindBy.class);
+		reader= new ScreenFieldReader(driver);
 	}
 	
 	@FindBy
@@ -40,24 +41,24 @@ public class TestScreenObjectFactory_FindScreenTextBlock {
 	@Test
 	@FindBy(row=8,column=3,length=9)
 	public void testFindByPositionAndLength() throws Exception {
-		ScreenTextBlock screenField = ScreenObjectFactory.applyFindScreenTextBlock(driver,findBy,screenFields, currentScreenField);
+		ScreenTextBlock screenField = ScreenUtils.applyFindScreenTextBlock(driver,findBy,reader, currentPosition);
 		assertNotNull(screenField);
 		assertEquals("8=Display",screenField.value);
 		FindBy nextTextFindBy = getFinder("nextText");
-		ScreenTextBlock screenField2 = ScreenObjectFactory.applyFindScreenTextBlock(driver,nextTextFindBy,screenFields, screenField);
+		ScreenTextBlock screenField2 = ScreenUtils.applyFindScreenTextBlock(driver,nextTextFindBy,reader, screenField.endPos()+1);
 		assertNotNull(screenField2);
 		assertEquals("description  9=Save  13=Change text  14=Compile  15=Create module...",screenField2.getString());
 	}
 	@Test
 	@FindBy(text="Work with Members Using PDM",row=8,column=3,length=9)
 	public void testFindByPositionLengthAndTextNoMatch() throws Exception {
-		ScreenTextBlock screenField = ScreenObjectFactory.applyFindScreenTextBlock(driver,findBy,screenFields, currentScreenField);
+		ScreenTextBlock screenField = ScreenUtils.applyFindScreenTextBlock(driver,findBy,reader, currentPosition);
 		assertNull(screenField);
 	}
 	@Test
 	@FindBy(text="8=Display",row=8,column=3,length=9)
 	public void testFindByPositionLengthAndTextMatch() throws Exception {
-		ScreenTextBlock screenField = ScreenObjectFactory.applyFindScreenTextBlock(driver,findBy,screenFields, currentScreenField);
+		ScreenTextBlock screenField = ScreenUtils.applyFindScreenTextBlock(driver,findBy,reader, currentPosition);
 		assertNotNull(screenField);
 		assertEquals("8=Display",screenField.value);
 	}
@@ -65,7 +66,7 @@ public class TestScreenObjectFactory_FindScreenTextBlock {
 	@Test
 	@FindBy(row=8,column=2)
 	public void testFindByPosition() throws Exception {
-		ScreenTextBlock screenField = ScreenObjectFactory.applyFindScreenTextBlock(driver,findBy,screenFields, currentScreenField);
+		ScreenTextBlock screenField = ScreenUtils.applyFindScreenTextBlock(driver,findBy,reader, currentPosition);
 		assertNotNull(screenField);
 		assertEquals("8=Display description  9=Save  13=Change text  14=Compile  15=Create module...",screenField.value);
 	}
@@ -73,7 +74,7 @@ public class TestScreenObjectFactory_FindScreenTextBlock {
 	@Test
 	@FindBy(row=8,column=3)
 	public void testFindByPositionClose() throws Exception {
-		ScreenTextBlock screenField = ScreenObjectFactory.applyFindScreenTextBlock(driver,findBy,screenFields, currentScreenField);
+		ScreenTextBlock screenField = ScreenUtils.applyFindScreenTextBlock(driver,findBy,reader, currentPosition);
 		assertNotNull(screenField);
 		assertEquals("8=Display description  9=Save  13=Change text  14=Compile  15=Create module...",screenField.value);
 	}

@@ -6,6 +6,9 @@ import org.tn5250j.framework.tn5250.Screen5250;
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.obj.ScreenDataContainer;
 import com.terminaldriver.tn5250j.obj.ScreenTextBlock;
+import static com.terminaldriver.tn5250j.util.ScreenUtils.pos2row;
+import static com.terminaldriver.tn5250j.util.ScreenUtils.pos2col;
+import static com.terminaldriver.tn5250j.util.ScreenUtils.rowcol2pos;
 
 public class ScreenFieldReader implements TN5250jConstants {
 	final ScreenDataContainer screenContainer;
@@ -24,19 +27,19 @@ public class ScreenFieldReader implements TN5250jConstants {
 	}
 
 	public void seek(final int pos) {
-		currentRow = pos2row(pos);
-		currentCol = pos2col(pos);
+		currentRow = pos2row(pos,cols);
+		currentCol = pos2col(pos,cols);
 	}
 	
 	public ScreenTextBlock read(final int row, final int col, final int length){
-		final int offset = bufferChar(row,col);
+		final int offset = rowcol2pos(row,col,cols);
 		seek(offset + length);
 		String value = new String(screenContainer.text,offset,length);
 		return new ScreenTextBlock(driver,value,row,col,length,String.valueOf(screenContainer.attr[offset]));
 	}
 
 	public ScreenTextBlock readField(final int row, final int col){
-		final int offset = bufferChar(row,col);
+		final int offset = rowcol2pos(row,col,cols);
 		seek(offset);
 		ScreenTextBlock field = readField();
 		if(field.startCol()<col){
@@ -56,19 +59,19 @@ public class ScreenFieldReader implements TN5250jConstants {
 
 	public ScreenTextBlock readField() {
 		try {
-			if (screenContainer.isAttr[bufferChar(currentRow, currentCol)] == 1) {
+			if (screenContainer.isAttr[getCurrentPosition()] == 1) {
 				advance();
 			}
-			final int startBuffer = bufferChar(currentRow, currentCol);
-			while (advance() && screenContainer.isAttr[bufferChar(currentRow, currentCol)] != 1) {
+			final int startBuffer = getCurrentPosition();
+			while (advance() && screenContainer.isAttr[getCurrentPosition()] != 1) {
 			}
-			final int endBuffer = bufferChar(currentRow, currentCol);
+			final int endBuffer = getCurrentPosition();
 			if (endBuffer == startBuffer) {
 				return null;
 			}
 			final String content = new String(screenContainer.text).substring(startBuffer, endBuffer);
-			final ScreenTextBlock retval = new ScreenTextBlock(driver, content, pos2row(startBuffer),
-					pos2col(startBuffer), endBuffer - startBuffer, Character.valueOf(screenContainer.attr[startBuffer]).toString());
+			final ScreenTextBlock retval = new ScreenTextBlock(driver, content, pos2row(startBuffer,cols),
+					pos2col(startBuffer,cols), endBuffer - startBuffer, Character.valueOf(screenContainer.attr[startBuffer]).toString());
 			return retval;
 		} catch (final ArrayIndexOutOfBoundsException e) {
 			if (currentRow > rows) {
@@ -87,17 +90,11 @@ public class ScreenFieldReader implements TN5250jConstants {
 		}
 		return true;
 	}
-
-	private int bufferChar(final int row, final int col) {
-		return ((row - 1) * cols) + col - 1;
+	
+	public int getCurrentPosition(){
+		return rowcol2pos(currentRow, currentCol,cols);
 	}
 
-	private int pos2row(final int pos) {
-		return Math.max(1, pos / cols + 1);
-	}
 
-	private int pos2col(final int pos) {
-		return Math.max(1, pos % cols);
-	}
 
 }

@@ -23,7 +23,6 @@ import lombok.Data;
 
 public class TestScreenObjectFactory_FindTable {
 	TerminalDriver driver;
-	List<org.tn5250j.framework.tn5250.ScreenField> screenFields;
 	ScreenElement currentScreenField;
 	@Rule public TestName testName = new TestName();
 	FindBy findBy;
@@ -32,7 +31,6 @@ public class TestScreenObjectFactory_FindTable {
 	public void setUp() throws Exception{
 		final InputStream data = getClass().getResourceAsStream("/com/terminaldriver/tn5250j/util/wrkmbrpdm.json");
 		driver = MockScreenUtil.createTestDriver(data);
-		screenFields = Arrays.asList(driver.getSession().getScreen().getScreenFields().getFields());
 		currentScreenField=null;
 		findBy = getClass().getMethod(testName.getMethodName()).getAnnotation(FindBy.class);
 	}
@@ -45,7 +43,7 @@ public class TestScreenObjectFactory_FindTable {
 	@FindBy(row=8,column=3)
 	public void testTable1() throws Exception {
 		Field field = getClass().getDeclaredField("table1");
-		ScreenElement newCurrentScreenField = ScreenObjectFactory.applyTableAnnotation(driver,this,field.getAnnotation(Table.class),field, screenFields, currentScreenField);
+		ScreenElement newCurrentScreenField = ScreenObjectFactory.applyTableAnnotation(driver,this,field.getAnnotation(Table.class),field, currentScreenField);
 		assertNotNull(table1);
 		assertEquals(3, table1.size());
 		

@@ -15,7 +15,7 @@ import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.annotation.FindBy;
 import com.terminaldriver.tn5250j.annotation.Table;
 import com.terminaldriver.tn5250j.exceptions.ObjectInitException;
-import com.terminaldriver.tn5250j.util.ScreenFieldReader;
+import static com.terminaldriver.tn5250j.util.ScreenUtils.*;
 
 public class ScreenObjectFactory {
 
@@ -36,8 +36,6 @@ public class ScreenObjectFactory {
 		assertScreen(clazz, driver);
 		final Field[] fields = clazz.getDeclaredFields();
 		boolean foundAll = true;
-		final List<org.tn5250j.framework.tn5250.ScreenField> screenFields = Arrays
-				.asList(screen.getScreenFields().getFields());
 		ScreenElement currentScreenField = null;
 		for (final Field field : fields) {
 
@@ -47,8 +45,8 @@ public class ScreenObjectFactory {
 					if (!field.isAccessible()) {
 						field.setAccessible(true);
 					}
-					final ScreenElement newScreenField = applyFind(field.getType(), driver, info, screenFields,
-							currentScreenField);
+					final ScreenElement newScreenField = applyFind(field.getType(), driver, info, 
+							currentScreenField.endPos()+1);
 					if (newScreenField != null) {
 						field.set(page, newScreenField);
 						currentScreenField = newScreenField;
@@ -64,7 +62,7 @@ public class ScreenObjectFactory {
 			if (field.isAnnotationPresent(Table.class)) {
 				final Table info = field.getAnnotation(Table.class);
 				try {
-					currentScreenField = applyTableAnnotation(driver, page, info, field, screenFields, currentScreenField);
+					currentScreenField = applyTableAnnotation(driver, page, info, field, currentScreenField);
 				} catch (final Exception e) {
 					throw new ObjectInitException(e);
 				}
@@ -92,9 +90,11 @@ public class ScreenObjectFactory {
 	}
 
 	static ScreenElement applyTableAnnotation(final TerminalDriver driver, final Object page, final Table info,
-			final Field field, final List<org.tn5250j.framework.tn5250.ScreenField> screenFields,
+			final Field field, 
 			ScreenElement currentScreenFieldParm) throws IllegalArgumentException, IllegalAccessException, InstantiationException {
-		
+		final List<org.tn5250j.framework.tn5250.ScreenField> screenFields = Arrays
+				.asList(driver.getSession().getScreen().getScreenFields().getFields());
+
 		ScreenElement currentScreenField = currentScreenFieldParm; 
 	
 		if (info.row()>0 && (currentScreenField == null || info.row() > currentScreenField.startRow())){
@@ -123,8 +123,9 @@ public class ScreenObjectFactory {
 						newfield.setAccessible(true);
 					}
 					final FindBy findInfo = newfield.getAnnotation(FindBy.class);
-					final ScreenElement newScreenField = applyFind(newfield.getType(), driver, findInfo, screenFields,
-							currentScreenField);
+					System.out.println("apply");
+					final ScreenElement newScreenField = applyFind(newfield.getType(), driver, findInfo,
+							currentScreenField.endPos()+1);
 					if (newScreenField == null) {
 						foundAllTable = false;
 						currentScreenField = saveCurrentScreenField;
@@ -143,74 +144,5 @@ public class ScreenObjectFactory {
 		return currentScreenField;
 	}
 
-	static ScreenElement applyFind(final Class<?> targetClazz, final TerminalDriver driver, final FindBy info,
-			final List<org.tn5250j.framework.tn5250.ScreenField> screenFields, final ScreenElement currentScreenField) {
-		if (targetClazz.equals(ScreenField.class)) {
-			return applyFindScreenField(driver, info, screenFields, currentScreenField);
-		} else {
-			return applyFindScreenTextBlock(driver, info, screenFields, currentScreenField);
-		}
-	}
 
-	static ScreenField applyFindScreenField(final TerminalDriver driver, final FindBy info,
-			final List<org.tn5250j.framework.tn5250.ScreenField> screenFields, final ScreenElement currentScreenField) {
-		int currentPosition = 0;
-		if (currentScreenField instanceof ScreenField) {
-			currentPosition = screenFields.indexOf(((ScreenField) currentScreenField).getUnderlyingScreenField()) + 1;
-		} else if (currentScreenField instanceof ScreenTextBlock) {
-			for (final org.tn5250j.framework.tn5250.ScreenField field : screenFields) {
-				if (field.startRow() == currentScreenField.startRow()
-						&& field.startCol() == currentScreenField.startCol()) {
-					break;
-				}
-				currentPosition = screenFields.indexOf(field);
-				if (field.startRow() > currentScreenField.startRow()) {
-					break;
-				}
-				if (field.startRow() == currentScreenField.startRow()
-						&& field.startCol() > currentScreenField.startCol()) {
-					break;
-				}
-			}
-		}
-		while (currentPosition < screenFields.size()) {
-			final ScreenField thisScreen = new ScreenField(driver, screenFields.get(currentPosition++));
-			if (findMatches(info, thisScreen)) {
-				return thisScreen;
-			}
-		}
-		return null;
-	}
-
-	static ScreenTextBlock applyFindScreenTextBlock(final TerminalDriver driver, final FindBy info,
-			final List<org.tn5250j.framework.tn5250.ScreenField> screenFields, final ScreenElement currentScreenField) {
-		final Screen5250 screen = driver.getSession().getScreen();
-		int currentPosition = 0;
-		if (currentScreenField != null) {
-			currentPosition = currentScreenField.endPos()+1;
-		}
-		if (info.row() > 0 && pos2row(currentPosition, screen.getColumns()) != info.row()) {
-			currentPosition = (info.row() - 1) * screen.getColumns();
-		}
-		final ScreenFieldReader reader = new ScreenFieldReader(driver);
-		if (info.row() > 0 && info.column() > 0) {
-			currentPosition = (info.row() - 1) * screen.getColumns() + info.column();
-			if(info.length() > 0){
-				//Read a specific screen block
-				ScreenTextBlock field = reader.read(info.row(), info.column(), info.length());
-				if (findMatches(info, field)) {
-					return field;
-				}
-				return null;
-			}
-		}
-		reader.seek(currentPosition);
-		ScreenTextBlock field = null;
-		while ((field = reader.readField()) != null) {
-			if (findMatches(info, field)) {
-				return field;
-			}
-		}
-		return null;
-	}
 }
