@@ -162,6 +162,10 @@ public abstract class By {
 	}
 
 	public abstract boolean matches(ScreenElement element);
+	
+	public By and(By by){
+		return By.and(this,by);
+	}
 
 	public static class ById extends By implements Serializable {
 

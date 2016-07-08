@@ -59,4 +59,12 @@ public class ScreenTextBlock extends ScreenElement {
 	public int endPos() {
 		return startPos() + length;
 	}
+
+	public void setString(final String value) {
+		throw new FieldNotEditableException(this);
+	}
+	
+	public boolean isEditable(){
+		return false;
+	}
 }

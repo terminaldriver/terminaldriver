@@ -14,4 +14,8 @@ public abstract class ScreenElement {
 	public abstract int startPos();
 
 	public abstract int endPos();
+	
+	public abstract void setString(final String value);
+	
+	public abstract boolean isEditable();
 }
