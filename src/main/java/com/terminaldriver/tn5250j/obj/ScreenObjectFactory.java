@@ -41,7 +41,7 @@ public class ScreenObjectFactory {
 						field.setAccessible(true);
 					}
 					final ScreenElement newScreenField = applyFind(field.getType(), driver, info,
-							currentScreenField.endPos() + 1);
+							currentScreenField == null? 0:currentScreenField.endPos() + 1);
 					if (newScreenField != null) {
 						field.set(page, newScreenField);
 						currentScreenField = newScreenField;
@@ -119,7 +119,7 @@ public class ScreenObjectFactory {
 					}
 					final FindBy findInfo = newfield.getAnnotation(FindBy.class);
 					final ScreenElement newScreenField = applyFind(newfield.getType(), driver, findInfo,
-							currentScreenField.endPos() + 1);
+							currentScreenField == null? 0: currentScreenField.endPos() + 1);
 					if (newScreenField == null) {
 						foundAllTable = false;
 						currentScreenField = saveCurrentScreenField;
