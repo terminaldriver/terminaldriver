@@ -1,7 +1,5 @@
 package com.terminaldriver.tn5250j.obj;
 
-import javax.activity.InvalidActivityException;
-
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.exceptions.InvalidKeyException;
 
