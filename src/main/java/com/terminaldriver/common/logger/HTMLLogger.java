@@ -57,7 +57,12 @@ public class HTMLLogger {
 				sb.append("<pre>");
 				sb.append("<span class=\"greenText\">");
 				for (int i = 0; i < cols; i++) {
-					if (currentAttr != rowAttr.charAt(i)) {
+					// The first underline is not shown
+					if (i>0 && currentAttr != rowAttr.charAt(i) 
+							&& rowAttr.charAt(i-1) != rowAttr.charAt(i)
+							&& ScreenAttribute.getAttrEnum(rowAttr.charAt(i)).isUnderLine()) {
+						
+					}else if (currentAttr != rowAttr.charAt(i)) {
 						currentAttr = rowAttr.charAt(i);
 						currentAttrEnum = ScreenAttribute.getAttrEnum(currentAttr);
 						sb.append("</span>").append("<span");
