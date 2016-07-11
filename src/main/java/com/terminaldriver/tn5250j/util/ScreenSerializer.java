@@ -1,6 +1,5 @@
 package com.terminaldriver.tn5250j.util;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,7 +10,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.tn5250j.framework.tn5250.Screen5250;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
