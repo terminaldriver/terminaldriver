@@ -5,13 +5,27 @@ import org.tn5250j.framework.tn5250.Screen5250;
 
 public class ScreenDataContainer implements TN5250jConstants {
 
-	public char[] text;
-	public char[] attr;
-	public char[] isAttr;
-	public char[] color;
-	public char[] extended;
+	public final char[] text;
+	public final char[] attr;
+	public final char[] isAttr;
+	public final char[] color;
+	public final char[] extended;
 	public final char[] graphic;
 	public final char[] field;
+	
+	
+
+	public ScreenDataContainer(char[] text, char[] attr, char[] isAttr, char[] color, char[] extended, char[] graphic,
+			char[] field) {
+		super();
+		this.text = text;
+		this.attr = attr;
+		this.isAttr = isAttr;
+		this.color = color;
+		this.extended = extended;
+		this.graphic = graphic;
+		this.field = field;
+	}
 
 	public ScreenDataContainer(final Screen5250 screen) {
 

@@ -36,6 +36,7 @@ public class HTMLLogger {
 		int pos = 0;
 		String screenChars;
 		String attributes;
+		final boolean isattr[];
 
 		public RowReader(final Screen5250 screen) {
 			this.screen = screen;
@@ -44,12 +45,19 @@ public class HTMLLogger {
 			final char attr[] = new char[screenChars.length()];
 			screen.GetScreen(attr, attr.length, TN5250jConstants.PLANE_ATTR);
 			attributes = new String(attr);
+			final char isattr[] = new char[screenChars.length()];
+			screen.GetScreen(isattr, isattr.length, TN5250jConstants.PLANE_IS_ATTR_PLACE);
+			this.isattr = new boolean[screenChars.length()];
+			for(int i=0;i<this.isattr.length;i++){
+				this.isattr[i] = isattr[i] > 0;
+			}
 		}
 
 		public String readRow() {
 			if (pos + cols <= screenChars.length()) {
 				final String row = screenChars.substring(pos, pos + cols);
 				final String rowAttr = attributes.substring(pos, pos + cols);
+				
 				pos += cols;
 				final StringBuilder sb = new StringBuilder();
 				char currentAttr = ' ';
@@ -57,22 +65,32 @@ public class HTMLLogger {
 				sb.append("<pre>");
 				sb.append("<span class=\"greenText\">");
 				for (int i = 0; i < cols; i++) {
+					//this should be cleaned up.  but make sure it is blank when it's an attribute.
+					final boolean isAttribute = isattr[(pos-cols)+i];
+					if(isAttribute){
+						if(currentAttrEnum.isUnderLine()){
+							sb.append("</span><span class=\"greenText\">").append(' ');
+							if(currentAttr == rowAttr.charAt(i)){
+								sb.append("</span><span").append(" class=\"");
+								sb.append(doClass(currentAttrEnum)).append("\">");
+							}
+						}else{
+							sb.append(' ');
+						}
+					}
 					// The first underline is not shown
-					if (i>0 && currentAttr != rowAttr.charAt(i) 
-							&& rowAttr.charAt(i-1) != rowAttr.charAt(i)
-							&& ScreenAttribute.getAttrEnum(rowAttr.charAt(i)).isUnderLine()) {
-						
-					}else if (currentAttr != rowAttr.charAt(i)) {
+					if (currentAttr != rowAttr.charAt(i)) {
 						currentAttr = rowAttr.charAt(i);
 						currentAttrEnum = ScreenAttribute.getAttrEnum(currentAttr);
 						sb.append("</span>").append("<span");
-						sb.append(" class=\"").append(doClass(currentAttrEnum)).append("\"");
-						sb.append(">");
+						sb.append(" class=\"").append(doClass(currentAttrEnum)).append("\">");
 					}
-					if (currentAttrEnum.isNonDisplay()) {
-						sb.append(" ");
-					} else {
-						sb.append(StringEscapeUtils.escapeHtml(String.valueOf(row.charAt(i))));
+					if(!isAttribute){
+						if (currentAttrEnum.isNonDisplay()) {
+							sb.append(" ");
+						} else {
+							sb.append(StringEscapeUtils.escapeHtml(String.valueOf(row.charAt(i))));
+						}
 					}
 				}
 				sb.append("</span>");

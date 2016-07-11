@@ -36,7 +36,7 @@ public class JSONLogChangeListener extends LogChangeListener {
 		sb.append(container.color).append("\r\n");
 		sb.append(container.extended).append("\r\n");
 		sb.append(container.graphic).append("\r\n");
-		// sb.append("[");
+		sb.append(container.field).append("\r\n");
 		boolean firstfield = true;
 		for (final ScreenField fld : driver.getSession().getScreen().getScreenFields().getFields()) {
 			if (!firstfield) {
@@ -80,10 +80,11 @@ public class JSONLogChangeListener extends LogChangeListener {
 		generator.writeStringField("color", screenInfo[3]);
 		generator.writeStringField("extended", screenInfo[4]);
 		generator.writeStringField("graphic", screenInfo[5]);
+		generator.writeStringField("field", screenInfo[6]);
 		generator.writeStringField("description", info.getLogText());
-		if (screenInfo.length > 6) {
+		if (screenInfo.length > 7) {
 			generator.writeArrayFieldStart("fields");
-			generator.writeRaw(screenInfo[6]);
+			generator.writeRaw(screenInfo[7]);
 			generator.writeEndArray();
 		}
 		generator.writeEndObject();
