@@ -37,11 +37,15 @@ public class ScreenSerializer {
 	public String serialize(final Screen5250 screen, final boolean indent) throws JsonProcessingException {
 		curPosition = 0;
 		final List<Map<String, Object>> maps = serializeToMaps(screen);
+		final Map<String,Object> screenMap = new HashMap<String, Object>();
+		screenMap.put("fields",maps);
+		screenMap.put("columns",screen.getColumns());
+		screenMap.put("rows",screen.getRows());
 		final ObjectMapper mapper = new ObjectMapper();
 		if (indent) {
 			mapper.enable(SerializationFeature.INDENT_OUTPUT);
 		}
-		return mapper.writeValueAsString(maps);
+		return mapper.writeValueAsString(screenMap);
 	}
 
 	public String serializeXML(final Screen5250 screen) throws JsonProcessingException {
