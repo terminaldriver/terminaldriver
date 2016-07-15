@@ -44,7 +44,7 @@ public class ScreenSerializer {
 		curPosition = 0;
 		final List<Map<String, Object>> maps = serializeToMaps(screen);
 		final StringBuilder sb = new StringBuilder();
-		sb.append("<screen>\r\n");
+		sb.append(String.format("<screen rows=\"%s\" columns=\"%s\">\r\n",screen.getRows(),screen.getColumns()));
 		for (final Map<String, Object> map : maps) {
 			sb.append("  <field");
 			for (final String col : Arrays.asList("text", "row", "col", "attr", "field", "length", "rawtext",

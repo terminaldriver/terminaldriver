@@ -243,7 +243,7 @@ public class TestScreenSerializer {
 		
 	}
 	
-	final String expectedXml ="<screen>\r\n" + 
+	final String expectedXml ="<screen rows=\"24\" columns=\"80\">\r\n" + 
 			"  <field text=\"                Work with Members Using PDM\" row=\"1\" col=\"12\" attr=\"WHT\" length=\"57\"/>\r\n" + 
 			"  <field text=\"PUB1\" row=\"1\" col=\"72\" length=\"9\"/>\r\n" + 
 			"  <field text=\"File  . . . . . .\" row=\"3\" col=\"2\" length=\"18\"/>\r\n" + 
