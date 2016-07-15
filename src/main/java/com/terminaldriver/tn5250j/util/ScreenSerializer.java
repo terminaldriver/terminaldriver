@@ -26,21 +26,13 @@ public class ScreenSerializer {
 		colCount = screen.getColumns();
 	}
 
-//	public ScreenDataContainer deserialize(final String data) throws IOException {
-//		final List<Map<String, Object>> maps = new ObjectMapper().readValue(data,
-//				new TypeReference<ArrayList<HashMap<String, Object>>>() {
-//				});
-//		System.out.println(maps);
-//		return null;
-//	}
-
 	public String serialize(final Screen5250 screen, final boolean indent) throws JsonProcessingException {
 		curPosition = 0;
 		final List<Map<String, Object>> maps = serializeToMaps(screen);
-		final Map<String,Object> screenMap = new HashMap<String, Object>();
-		screenMap.put("fields",maps);
-		screenMap.put("columns",screen.getColumns());
-		screenMap.put("rows",screen.getRows());
+		final Map<String, Object> screenMap = new HashMap<String, Object>();
+		screenMap.put("fields", maps);
+		screenMap.put("columns", screen.getColumns());
+		screenMap.put("rows", screen.getRows());
 		final ObjectMapper mapper = new ObjectMapper();
 		if (indent) {
 			mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -48,7 +40,7 @@ public class ScreenSerializer {
 		return mapper.writeValueAsString(screenMap);
 	}
 
-	public String serializeXML(final Screen5250 screen) throws JsonProcessingException {
+	public String serializeXML(final Screen5250 screen) {
 		curPosition = 0;
 		final List<Map<String, Object>> maps = serializeToMaps(screen);
 		final StringBuilder sb = new StringBuilder();
@@ -80,13 +72,12 @@ public class ScreenSerializer {
 	public Map<String, Object> readField() {
 		while (curPosition < screenContainer.text.length) {
 			final int curRow = ScreenUtils.pos2row(curPosition, colCount);
-			final int curCol = ScreenUtils.pos2col(curPosition, colCount);
+
 			final int savePos = curPosition;
 			final char currentAttr = screenContainer.attr[curPosition];
 			final HashMap<String, Object> retval = new HashMap<String, Object>();
 			final StringBuilder text = new StringBuilder();
 			retval.put("row", curRow);
-			retval.put("col", curCol);
 
 			if (currentAttr != ' ') {
 				retval.put("attr", ScreenAttribute.getAttrEnum(currentAttr).toString());
@@ -95,6 +86,8 @@ public class ScreenSerializer {
 				retval.put("isAttrOffset", "N");
 			}
 			curPosition++;
+			int curCol = ScreenUtils.pos2col(curPosition+1, colCount);
+			retval.put("col", curCol);
 			if (curPosition < screenContainer.field.length) {
 				final int fieldAttr = screenContainer.field[curPosition];
 				if (fieldAttr > 0) {
@@ -106,12 +99,19 @@ public class ScreenSerializer {
 					&& screenContainer.attr[curPosition] == currentAttr) {
 				text.append(screenContainer.text[curPosition++]);
 			}
+
 			final String scrubbedText = text.toString().replace((char) 0, ' ').replaceFirst("\\s+$", "");
 			retval.put("text", scrubbedText);
-
-			final int length = curPosition - savePos;
+			int length = curPosition - savePos;
+			// When wrapped trim 1
+			if (curRow != ScreenUtils.pos2row(curPosition, colCount)) {
+				length--;
+			}
 			retval.put("length", length);
+
 			if (retval.containsKey("field")) {
+				retval.put("length", length - 1);
+				// retval.put("col", curCol+1);
 				if (!scrubbedText.equals(text.toString().replaceFirst("\0+$", ""))) {
 					retval.put("rawtext", text.toString().replaceFirst("\0+$", ""));
 				}

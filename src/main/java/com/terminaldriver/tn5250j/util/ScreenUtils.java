@@ -165,7 +165,7 @@ public class ScreenUtils {
 	}
 
 	public static int pos2col(final int pos, final int cols) {
-		return Math.max(1, pos % cols);
+		return Math.max(1, (pos % cols));
 	}
 
 	public static int rowcol2pos(final int row, final int col, final int colsPerRow) {
