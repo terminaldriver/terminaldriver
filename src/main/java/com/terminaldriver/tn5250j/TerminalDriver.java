@@ -112,6 +112,15 @@ public class TerminalDriver implements Closeable {
 
 		return session;
 	}
+	
+	public void setSession(Session5250 session){
+		this.session=session;
+		session.addSessionListener(driverSessionListener);
+
+		session.getScreen().addScreenListener(driverScreenListener);
+		session.getScreen().getOIA().addOIAListener(driverScreenOIAListener);
+		
+	}
 
 	public void addScreenListener(final ScreenListener listener) {
 		session.getScreen().addScreenListener(listener);
@@ -391,9 +400,12 @@ public class TerminalDriver implements Closeable {
 		}
 	}
 
-	public static class TerminDriverScreenOIAListener implements ScreenOIAListener {
+	public class TerminDriverScreenOIAListener implements ScreenOIAListener {
 
 		public void onOIAChanged(final ScreenOIA arg0, final int arg1) {
+			if(arg1==ScreenOIAListener.OIA_CHANGED_INPUTINHIBITED){
+				fireInputInhibited(arg0.getInputInhibited() != ScreenOIA.INPUTINHIBITED_NOTINHIBITED);
+			}
 		}
 	}
 
@@ -438,6 +450,12 @@ public class TerminalDriver implements Closeable {
 	private void fireNote(final String note) {
 		for (final TerminalDriverChangeListener listener : listeners) {
 			listener.note(note);
+		}
+	}
+	
+	private void fireInputInhibited(final boolean inhibited) {
+		for (final TerminalDriverChangeListener listener : listeners) {
+			listener.inputInhibited(inhibited);
 		}
 	}
 
