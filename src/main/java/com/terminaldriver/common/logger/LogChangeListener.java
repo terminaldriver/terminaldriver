@@ -105,4 +105,7 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 		}
 	}
 
+	public void inputInhibited(boolean inhibited) {
+		
+	}
 }

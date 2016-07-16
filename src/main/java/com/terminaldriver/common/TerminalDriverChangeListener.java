@@ -16,4 +16,6 @@ public interface TerminalDriverChangeListener {
 	public void screenChanged(TerminalDriver driver);
 	
 	public void note(String note);
+	
+	public void inputInhibited(boolean inhibited);
 }
