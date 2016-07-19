@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.lang.reflect.Field;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -15,12 +14,11 @@ import javax.swing.JTextArea;
 
 import org.tn5250j.Session5250;
 import org.tn5250j.SessionPanel;
-import org.tn5250j.SessionPanel.TNRubberBand;
 import org.tn5250j.framework.tn5250.Rect;
-import org.tn5250j.framework.tn5250.Screen5250;
 
 import com.terminaldriver.common.TerminalDriverChangeListener;
 import com.terminaldriver.tn5250j.TerminalDriver;
+import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
 import com.terminaldriver.tn5250j.obj.ScreenField;
 
 public class TerminalRecorder {
@@ -112,13 +110,8 @@ public class TerminalRecorder {
 			if(textcontent.length()<200)
 				textField.setText(textField.getText() + "id:" +  textcontent + "\n");
 			else{
-				try{
-					Field field = Screen5250.class.getDeclaredField("lastPos");
-					field.setAccessible(true);
-					int lastPos = (Integer)field.get(sessionPanel.getScreen()) + 1;
-					textField.setText(textField.getText() + "id:" +  lastPos + "\n");
-				}catch(Exception ex){ex.printStackTrace();}
-				
+				int lastPos = sessionPanel.getScreen().getLastPos();
+				textField.setText(textField.getText() + "id:" +  lastPos + "\n");
 			}
 		}
 		
@@ -136,6 +129,9 @@ public class TerminalRecorder {
 	
 	class GUITerminalDriverChangeListener implements TerminalDriverChangeListener{
 
+		StringBuilder keyBuffer= new StringBuilder();
+		boolean bufferKeys = true;
+		
 		void addText(String text){
 			textField.append("\r\n" + text);
 		}
@@ -145,7 +141,20 @@ public class TerminalRecorder {
 		}
 
 		public void sendKeys(TerminalDriver driver, String keys) {
-			addText("Send Keys:" + keys);
+			if(keys.length()==1){
+				ScreenField field = driver.getScreenFieldAt(driver.getSession().getScreen().getLastPos());
+				if(field != null && ScreenAttribute.getAttrEnum(field.getAttr().charAt(0)).isNonDisplay() ){
+					keyBuffer.append("*");
+				}else{
+					keyBuffer.append(keys);
+				}
+			}else{
+				keyBuffer.append(keys);
+			}
+			if(!bufferKeys || (keys.startsWith("[") && keys.endsWith("]"))){
+				addText("Send Keys:" + keyBuffer);
+				keyBuffer.setLength(0);
+			}
 		}
 
 		public void screenSizeChanged(TerminalDriver driver, int cols, int rows) {
@@ -157,6 +166,7 @@ public class TerminalRecorder {
 		}
 
 		public void screenChanged(TerminalDriver driver) {
+			flushKeys();
 			addText("Screen changed");
 		}
 
@@ -166,8 +176,20 @@ public class TerminalRecorder {
 
 		public void inputInhibited(boolean inhibited) {
 			if(inhibited){
+				flushKeys();
 				addText("inhibited, wait for not inhibited");
 			}
+		}
+		
+		void flushKeys(){
+			if(keyBuffer.length()>0){
+				addText("Send Keys:" + keyBuffer);
+				keyBuffer.setLength(0);
+			}
+		}
+
+		public void cursorMoved(TerminalDriver driver, int row, int col) {
+			addText(String.format("Move cursor To %sx%s",row,col));
 		}
 		
 	}
