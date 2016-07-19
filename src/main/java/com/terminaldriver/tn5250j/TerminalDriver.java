@@ -346,7 +346,7 @@ public class TerminalDriver implements Closeable {
 	
 	public ScreenField getScreenFieldAt(final int pos) {
 		for (final org.tn5250j.framework.tn5250.ScreenField field : getRawScreenFields()) {
-			if(field.startPos() >= pos && field.endPos() <= pos){
+			if(field.startPos() <= pos && field.endPos() >= pos){
 				return new ScreenField(this, field);
 			}
 		}
