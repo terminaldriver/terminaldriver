@@ -13,8 +13,10 @@ import org.tn5250j.Session5250;
 import org.tn5250j.event.ScreenListener;
 import org.tn5250j.event.ScreenOIAListener;
 import org.tn5250j.event.SessionChangeEvent;
+import org.tn5250j.event.SessionKeysListener;
 import org.tn5250j.event.SessionListener;
 import org.tn5250j.framework.common.SessionManager;
+import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.framework.tn5250.ScreenOIA;
 
 import com.terminaldriver.common.TerminalDriverChangeListener;
@@ -55,6 +57,8 @@ public class TerminalDriver implements Closeable {
 	final List<TerminalDriverChangeListener> listeners = new ArrayList<TerminalDriverChangeListener>();
 	long markedUpdate;
 
+	private SessionKeysListener driverSessionKeysListener = new TerminalDriverSessionKeysListener();;
+
 	public TerminalDriver() {
 		super();
 	}
@@ -86,7 +90,7 @@ public class TerminalDriver implements Closeable {
 	}
 
 	public void sendKeys(final String keys) {
-		fireSendKeys(keys);
+		//fireSendKeys(keys);
 		session.getScreen().sendKeys(keys);
 	}
 
@@ -101,6 +105,7 @@ public class TerminalDriver implements Closeable {
 		session.addSessionListener(driverSessionListener);
 
 		session.getScreen().addScreenListener(driverScreenListener);
+		session.getScreen().addSessionKeysListener(driverSessionKeysListener);
 		session.getScreen().getOIA().addOIAListener(driverScreenOIAListener);
 		session.connect();
 
@@ -116,10 +121,10 @@ public class TerminalDriver implements Closeable {
 	public void setSession(Session5250 session){
 		this.session=session;
 		session.addSessionListener(driverSessionListener);
+		session.getScreen().addSessionKeysListener(driverSessionKeysListener);
 
 		session.getScreen().addScreenListener(driverScreenListener);
 		session.getScreen().getOIA().addOIAListener(driverScreenOIAListener);
-		
 	}
 
 	public void addScreenListener(final ScreenListener listener) {
@@ -329,11 +334,44 @@ public class TerminalDriver implements Closeable {
 		}
 		return retval;
 	}
+	
+	public ScreenField getScreenFieldAt(final int row, final int col) {
+		for (final org.tn5250j.framework.tn5250.ScreenField field : getRawScreenFields()) {
+			if(field.startRow() == row && field.startCol()>=col && field.startCol()+field.getLength() >= col){
+				return new ScreenField(this, field);
+			}
+		}
+		return null;
+	}
+	
+	public ScreenField getScreenFieldAt(final int pos) {
+		for (final org.tn5250j.framework.tn5250.ScreenField field : getRawScreenFields()) {
+			if(field.startPos() >= pos && field.endPos() <= pos){
+				return new ScreenField(this, field);
+			}
+		}
+		return null;
+	}
 
 	private List<org.tn5250j.framework.tn5250.ScreenField> getRawScreenFields() {
 		return Arrays.asList(session.getScreen().getScreenFields().getFields());
 	}
 
+	public class TerminalDriverSessionKeysListener implements SessionKeysListener {
+
+		public void fieldStringSet(Screen5250 arg0, org.tn5250j.framework.tn5250.ScreenField screenField, String value) {
+			fireFieldSetString(screenField,value);
+		}
+
+		public void keysSent(Screen5250 arg0, String keys) {
+			fireSendKeys(keys);
+		}
+
+		public void cursorMoved(Screen5250 arg0, int pos) {
+			fireCursorMoved(pos);
+		}
+		
+	}
 	public class TerminalDriverScreenListener implements ScreenListener {
 
 		@Setter
@@ -413,13 +451,14 @@ public class TerminalDriver implements Closeable {
 		return keys;
 	}
 
-	public void fireFieldSetString(final ScreenField screenField, final String inputValue) {
+	public void fireFieldSetString(final org.tn5250j.framework.tn5250.ScreenField screenField, final String inputValue) {
 		String value = inputValue;
-		if (ScreenAttribute.getAttrEnum(screenField.getAttr().charAt(0)).isNonDisplay()) {
+		if (ScreenAttribute.getAttrEnum((char) screenField.getAttr()).isNonDisplay()) {
 			value = value.replaceAll(".", "*");
 		}
+		ScreenField myScreenField = new ScreenField(this, screenField);
 		for (final TerminalDriverChangeListener listener : listeners) {
-			listener.fieldSetString(this, screenField, value);
+			listener.fieldSetString(this, myScreenField, value);
 		}
 	}
 
@@ -456,6 +495,14 @@ public class TerminalDriver implements Closeable {
 	private void fireInputInhibited(final boolean inhibited) {
 		for (final TerminalDriverChangeListener listener : listeners) {
 			listener.inputInhibited(inhibited);
+		}
+	}
+	
+	private void fireCursorMoved(final int pos){
+		for (final TerminalDriverChangeListener listener : listeners) {
+			int col = ScreenUtils.pos2col(pos+1, getScreenColumns());
+			int row = ScreenUtils.pos2row(pos+1, getScreenColumns());
+			listener.cursorMoved(this,row,col);
 		}
 	}
 

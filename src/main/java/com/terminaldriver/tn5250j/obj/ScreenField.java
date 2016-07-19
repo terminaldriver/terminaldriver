@@ -62,7 +62,7 @@ public class ScreenField extends ScreenElement {
 		if (!isEditable()) {
 			throw new FieldNotEditableException(this);
 		}
-		driver.fireFieldSetString(this, value);
+		//driver.fireFieldSetString(this, value);
 		screenField.setString(value);
 	}
 
