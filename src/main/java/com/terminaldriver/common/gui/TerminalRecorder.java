@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.Field;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,7 +20,10 @@ import org.tn5250j.framework.tn5250.Rect;
 import com.terminaldriver.common.TerminalDriverChangeListener;
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
+import com.terminaldriver.tn5250j.obj.ScreenElement;
 import com.terminaldriver.tn5250j.obj.ScreenField;
+
+ import static com.terminaldriver.tn5250j.util.ScreenUtils.*;
 
 public class TerminalRecorder {
 
@@ -29,7 +33,9 @@ public class TerminalRecorder {
 	private JButton recordButton;
 	private JButton stopButton;
 	private JButton identifyButton;
+	private JButton clearButton;
 	private SessionPanel sessionPanel;
+	private TerminalDriver terminalDriver;
 	
 	public TerminalRecorder(){
 		frame = new JFrame();
@@ -46,15 +52,18 @@ public class TerminalRecorder {
 		frame.add(buttonPanel,BorderLayout.SOUTH);
 		
 		recordButton = new JButton("Record");
+		clearButton = new JButton("Clear");
 		stopButton = new JButton("Stop");
 		stopButton.setEnabled(false);
 		identifyButton = new JButton("Identify");
 		buttonPanel.add(recordButton);
 		buttonPanel.add(stopButton);
 		buttonPanel.add(identifyButton);
+		buttonPanel.add(clearButton);
 		recordButton.addActionListener(new RecordListener());
 		stopButton.addActionListener(new StopListener());
 		identifyButton.addActionListener(new IdentifyListener());
+		clearButton.addActionListener(new ClearListener());
 		
 		
 		
@@ -71,10 +80,10 @@ public class TerminalRecorder {
 	}
 	
 	public static TerminalRecorder listen(Session5250 session){
-		TerminalDriver t = new TerminalDriver();
-		t.setSession(session);
 		TerminalRecorder recorder = new TerminalRecorder();
-		t.addTerminalDriverChangeListener(recorder.createListener());
+		recorder.terminalDriver = new TerminalDriver();
+		recorder.terminalDriver.setSession(session);
+		recorder.terminalDriver.addTerminalDriverChangeListener(recorder.createListener());
 		recorder.startGUI();
 		return recorder;
 	}
@@ -107,12 +116,34 @@ public class TerminalRecorder {
 			final Rect area = sessionPanel.getBoundingArea();
 			//sessionPanel.getScreen().
 			final String textcontent = sessionPanel.getScreen().copyText(area);
-			if(textcontent.length()<200)
+			if(textcontent.length()<200){
 				textField.setText(textField.getText() + "id:" +  textcontent + "\n");
-			else{
+			Field fieldX;
+			try {
+				fieldX = Rect.class.getDeclaredField("x");
+				fieldX.setAccessible(true);
+				textField.setText( textField.getText() + "rect.x:" +  fieldX.getInt(area)+ "\n");
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} 
+			}else{
 				int lastPos = sessionPanel.getScreen().getLastPos();
-				textField.setText(textField.getText() + "id:" +  lastPos + "\n");
+				ScreenField field = terminalDriver.getScreenFieldAt(lastPos);
+				if (field != null){
+					textField.setText(textField.getText() + "field:" + field.getUnderlyingScreenField().toString() + "\n");
+				}else{
+					ScreenElement x = terminalDriver.findElementByPosition(pos2row(lastPos,sessionPanel.getScreen().getColumns()), pos2col(lastPos,sessionPanel.getScreen().getColumns()), null);
+					textField.setText(textField.getText() + "field:" + x.toString() + "\n");
+				}
 			}
+		}
+		
+	}
+	class ClearListener implements ActionListener{
+
+		public void actionPerformed(ActionEvent e) {
+			textField.setText("");
 		}
 		
 	}
@@ -178,6 +209,10 @@ public class TerminalRecorder {
 			if(inhibited){
 				flushKeys();
 				addText("inhibited, wait for not inhibited");
+			}
+			if(!inhibited){
+				flushKeys();
+				addText("not inhibited");
 			}
 		}
 		
