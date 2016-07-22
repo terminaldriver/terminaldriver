@@ -137,6 +137,9 @@ public class TerminalDriver implements Closeable {
 
 	public void close() throws IOException {
 		session.disconnect();
+		closeListeners();
+	}
+	public void closeListeners() throws IOException {
 		for (final TerminalDriverChangeListener listener : listeners) {
 			if (listener instanceof Closeable) {
 				((Closeable) listener).close();

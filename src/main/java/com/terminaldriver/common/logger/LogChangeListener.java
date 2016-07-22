@@ -64,7 +64,7 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 			screenChangePending = false;
 			info = new HTMLLogInfo(renderScreen(driver), info.getLogText());
 		} else {
-			if (info != null) {
+			if (info != null && !driver.acceptingInput()) {
 				info.addText("Screen updated." + (driver.acceptingInput() ? "Accepting input" : "Input inhibited"));
 			}
 		}

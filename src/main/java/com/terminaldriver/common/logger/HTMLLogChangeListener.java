@@ -21,6 +21,7 @@ public class HTMLLogChangeListener extends LogChangeListener {
 
 	@Override
 	protected String renderScreen(final TerminalDriver driver) {
+		System.out.println("render!");
 		return HTMLLogger.getHTML(driver.getSession().getScreen());
 	}
 
