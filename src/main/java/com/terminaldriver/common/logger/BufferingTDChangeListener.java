@@ -4,24 +4,19 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import com.terminaldriver.common.TerminalDriverChangeListener;
-import com.terminaldriver.common.logger.HTMLBuilder.HTMLLogInfo;
 import com.terminaldriver.tn5250j.TerminalDriver;
 import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
 import com.terminaldriver.tn5250j.obj.ScreenField;
 
-public class KeyBufferingTDChangeListener implements TerminalDriverChangeListener, Closeable {
+public class BufferingTDChangeListener implements TerminalDriverChangeListener, Closeable {
 
 	StringBuilder keyBuffer= new StringBuilder();
 	boolean bufferKeys = true;
+	boolean inputInhibitedDelta = true;
+	Boolean lastInhibited;
 	TerminalDriverChangeListener wrappedListener;
 
-
-	public KeyBufferingTDChangeListener(TerminalDriverChangeListener wrappedListener) {
-		this(wrappedListener,false);
-	}
-
-	public KeyBufferingTDChangeListener(TerminalDriverChangeListener wrappedListener,final boolean verbose) {
-		this.bufferKeys = bufferKeys;
+	public BufferingTDChangeListener(TerminalDriverChangeListener wrappedListener) {
 		this.wrappedListener=wrappedListener;
 	}
 
@@ -64,15 +59,22 @@ public class KeyBufferingTDChangeListener implements TerminalDriverChangeListene
 	public void screenChanged(final TerminalDriver driver) {
 		flushKeys(driver);
 		wrappedListener.screenChanged(driver);
+		lastInhibited=null;
 	}
 
 	public void note(final String note) {
 		wrappedListener.note(note);
 	}
 
+	/**
+	 * Filter duplicate updates to inputinhibited
+	 */
 	public void inputInhibited(boolean inhibited) {
 		flushKeys(null);
-		wrappedListener.inputInhibited(inhibited);
+		if(!inputInhibitedDelta || !Boolean.valueOf(inhibited).equals(lastInhibited)){
+			wrappedListener.inputInhibited(inhibited);
+		}
+		lastInhibited=inhibited;
 	}
 	
 	public void cursorMoved(TerminalDriver driver, int row, int col){
@@ -90,5 +92,10 @@ public class KeyBufferingTDChangeListener implements TerminalDriverChangeListene
 		if(wrappedListener instanceof Closeable){
 			((Closeable) wrappedListener).close();
 		}
+	}
+	
+	public void setBufferKeys(boolean bufferKeys){
+		flushKeys(null);
+		this.bufferKeys=bufferKeys;
 	}
 }

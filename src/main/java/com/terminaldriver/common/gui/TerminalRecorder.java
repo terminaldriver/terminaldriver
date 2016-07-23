@@ -23,10 +23,9 @@ import org.tn5250j.SessionPanel;
 import org.tn5250j.framework.tn5250.Rect;
 
 import com.terminaldriver.common.TerminalDriverChangeListener;
+import com.terminaldriver.common.logger.BufferingTDChangeListener;
 import com.terminaldriver.common.logger.HTMLLogChangeListener;
-import com.terminaldriver.common.logger.KeyBufferingTDChangeListener;
 import com.terminaldriver.tn5250j.TerminalDriver;
-import com.terminaldriver.tn5250j.annotation.ScreenAttribute;
 import com.terminaldriver.tn5250j.obj.ScreenElement;
 import com.terminaldriver.tn5250j.obj.ScreenField;
 
@@ -139,7 +138,7 @@ public class TerminalRecorder {
 	}
 	
 	public TerminalDriverChangeListener createListener(){
-		return new KeyBufferingTDChangeListener(new GUITerminalDriverChangeListener());
+		return new BufferingTDChangeListener(new GUITerminalDriverChangeListener());
 	}
 	
 	class RecordListener implements ActionListener{
@@ -208,7 +207,7 @@ public class TerminalRecorder {
 					selectedFile = new File(selectedFile.getAbsolutePath() + ".html");
 				}
 				try {
-					htmlLogChangeListener = new KeyBufferingTDChangeListener(new HTMLLogChangeListener(
+					htmlLogChangeListener = new BufferingTDChangeListener(new HTMLLogChangeListener(
 							new FileWriter(selectedFile), false));
 					//Save the current screen
 					htmlLogChangeListener.screenChanged(terminalDriver);
@@ -253,16 +252,12 @@ public class TerminalRecorder {
 
 	class GUITerminalDriverChangeListener implements TerminalDriverChangeListener{
 
-		StringBuilder keyBuffer= new StringBuilder();
-		boolean bufferKeys = true;
-		
-		
 		public void fieldSetString(TerminalDriver driver, ScreenField screenField, String value) {
 			addText("Enter field text:" + value);
 		}
 
 		public void sendKeys(TerminalDriver driver, String keys) {
-			addText("Send Keys:" + keyBuffer);
+			addText("Send Keys:" + keys);
 		}
 
 		public void screenSizeChanged(TerminalDriver driver, int cols, int rows) {

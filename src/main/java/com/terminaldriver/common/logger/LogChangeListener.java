@@ -65,7 +65,7 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 			info = new HTMLLogInfo(renderScreen(driver), info.getLogText());
 		} else {
 			if (info != null && !driver.acceptingInput()) {
-				info.addText("Screen updated." + (driver.acceptingInput() ? "Accepting input" : "Input inhibited"));
+				//info.addText("Screen updated." + (driver.acceptingInput() ? "Accepting input" : "Input inhibited"));
 			}
 		}
 	}
@@ -106,7 +106,8 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 	}
 
 	public void inputInhibited(boolean inhibited) {
-		
+		if (!inhibited)
+			info.addText("Input not inhibited.");
 	}
 	
 	public void cursorMoved(TerminalDriver driver, int row, int col){
