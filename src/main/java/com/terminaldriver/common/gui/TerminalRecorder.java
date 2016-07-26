@@ -26,15 +26,21 @@ import com.terminaldriver.common.TerminalDriverChangeListener;
 import com.terminaldriver.common.logger.BufferingTDChangeListener;
 import com.terminaldriver.common.logger.HTMLLogChangeListener;
 import com.terminaldriver.tn5250j.TerminalDriver;
+import com.terminaldriver.tn5250j.obj.By;
 import com.terminaldriver.tn5250j.obj.ScreenElement;
 import com.terminaldriver.tn5250j.obj.ScreenField;
+import com.terminaldriver.tn5250j.obj.ScreenTextBlock;
+import com.terminaldriver.tn5250j.util.ScreenFieldReader;
 
- import static com.terminaldriver.tn5250j.util.ScreenUtils.*;
+import static com.terminaldriver.tn5250j.util.ScreenUtils.*;
 
  import javax.swing.JFileChooser;
- import java.io.File;
+
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException; 
+import java.io.IOException;
+import java.io.StringReader; 
  
 public class TerminalRecorder {
 
@@ -115,8 +121,6 @@ public class TerminalRecorder {
 			   }
 			});
 			
-		
-		
 	}
 	
 	public void startGUI(){
@@ -146,7 +150,13 @@ public class TerminalRecorder {
 		public void actionPerformed(ActionEvent e) {
 			stopButton.setEnabled(true);
 			recordButton.setEnabled(false);
-			textField.setText(textField.getText() + "Record\n");
+			textField.setText("import static com.terminaldriver.tn5250j.Assert.assertBy;");
+			addText("public class DriverTest {");
+			addText("");
+			addText("    @Test");
+			addText("    public void testDriver() throws Exception {");
+			addText("        final TerminalDriver driver = new TerminalDriver();");
+			addText("        driver.connectTo(\"0.0.0.0\", 23);");
 		}
 		
 	}
@@ -155,7 +165,8 @@ public class TerminalRecorder {
 		public void actionPerformed(ActionEvent e) {
 			stopButton.setEnabled(false);
 			recordButton.setEnabled(true);
-			textField.setText(textField.getText() + "Stop\n");
+			addText("    }");
+			addText("}");
 		}
 		
 	}
@@ -164,25 +175,36 @@ public class TerminalRecorder {
 		public void actionPerformed(ActionEvent e) {
 			final Rect area = sessionPanel.getBoundingArea();
 			final String textcontent = sessionPanel.getScreen().copyText(area);
+			addText("        //Confirm screen contents");
 			if(textcontent.length()<200){
-				textField.setText(textField.getText() + "id:" +  textcontent + "\n");
-			Field fieldX;
-			try {
-				fieldX = Rect.class.getDeclaredField("x");
-				fieldX.setAccessible(true);
-				textField.setText( textField.getText() + "rect.x:" +  fieldX.getInt(area)+ "\n");
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} 
+				Field fieldX;
+				Field fieldY;
+				try {
+					fieldX = Rect.class.getDeclaredField("x");
+					fieldX.setAccessible(true);
+					fieldY = Rect.class.getDeclaredField("y");
+					fieldY.setAccessible(true);
+					int x = fieldX.getInt(area);
+					int y = fieldY.getInt(area);
+					BufferedReader reader = new BufferedReader(new StringReader(textcontent));
+					String line = null;
+					while((line = reader.readLine()) != null){
+						addText(String.format("        assertBy(By.position(%s,%s).and(By.text(\"%s\")),driver);",x,y,line));
+						y+=1;
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				} 
 			}else{
 				int lastPos = sessionPanel.getScreen().getLastPos();
 				ScreenField field = terminalDriver.getScreenFieldAt(lastPos);
 				if (field != null){
-					textField.setText(textField.getText() + "field:" + field.getUnderlyingScreenField().toString() + "\n");
+					//textField.setText(textField.getText() + "field:" + field.getUnderlyingScreenField().toString() + "\n");
+					addText(String.format("assertBy(By.row(%s).and(By.text(\"%s\")),driver);",field.startRow(),field.getString()));
 				}else{
 					ScreenElement x = terminalDriver.findElementByPosition(pos2row(lastPos,sessionPanel.getScreen().getColumns()), pos2col(lastPos,sessionPanel.getScreen().getColumns()), null);
-					textField.setText(textField.getText() + "field:" + x.toString() + "\n");
+					//textField.setText(textField.getText() + "field:" + x.toString() + "\n");
+					addText(String.format("assertBy(By.position(%s,%s).and(By.text(\"%s\")),driver);",x.startRow(),x.startCol(),x.getString()));
 				}
 			}
 		}
@@ -199,26 +221,25 @@ public class TerminalRecorder {
 
 		public void actionPerformed(ActionEvent e) {
 			if (loggingButton.getText().equals("Log")){
-			int result = fileChooser.showSaveDialog(null);
-			if (result == JFileChooser.APPROVE_OPTION) {
-				loggingButton.setText("End Log");
-				File selectedFile = fileChooser.getSelectedFile();
-				if (!selectedFile.getName().endsWith(".html") && !selectedFile.getName().endsWith(".htm")){
-					selectedFile = new File(selectedFile.getAbsolutePath() + ".html");
+				int result = fileChooser.showSaveDialog(null);
+				if (result == JFileChooser.APPROVE_OPTION) {
+					loggingButton.setText("End Log");
+					File selectedFile = fileChooser.getSelectedFile();
+					if (!selectedFile.getName().endsWith(".html") && !selectedFile.getName().endsWith(".htm")){
+						selectedFile = new File(selectedFile.getAbsolutePath() + ".html");
+					}
+					try {
+						htmlLogChangeListener = new BufferingTDChangeListener(new HTMLLogChangeListener(
+								new FileWriter(selectedFile), false));
+						terminalDriver.addTerminalDriverChangeListener(htmlLogChangeListener);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
-				try {
-					htmlLogChangeListener = new BufferingTDChangeListener(new HTMLLogChangeListener(
-							new FileWriter(selectedFile), false));
-					//Save the current screen
-					htmlLogChangeListener.screenChanged(terminalDriver);
-					terminalDriver.addTerminalDriverChangeListener(htmlLogChangeListener);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
 			}
 			else{
 				try {
+					htmlLogChangeListener.screenChanged(terminalDriver);
 					terminalDriver.closeListeners();
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -257,11 +278,11 @@ public class TerminalRecorder {
 		}
 
 		public void sendKeys(TerminalDriver driver, String keys) {
-			addText("Send Keys:" + keys);
+			addText("        driver.sendKeys(\"" + keys + "\");");
 		}
 
 		public void screenSizeChanged(TerminalDriver driver, int cols, int rows) {
-			addText(String.format("Screen size changed to %s x %s:",rows,cols));
+			addText(String.format("        //Screen size changed to %s x %s:",rows,cols));
 		}
 
 		public void screenPartialsUpdate(TerminalDriver driver, int row1, int col1, int row2, int col2) {
@@ -269,7 +290,23 @@ public class TerminalRecorder {
 		}
 
 		public void screenChanged(TerminalDriver driver) {
-			addText("Screen changed");
+			String nameId= identifyScreenName(driver);
+			if(nameId != null){
+				addText("        //" + nameId);
+			}
+			addText("        driver.waitForScreen(5000);");
+			addText("        driver.waitForInputNotInhibited(2000);\n");
+		}
+
+		private String identifyScreenName(TerminalDriver driver) {
+			final ScreenFieldReader reader = new ScreenFieldReader(driver);
+			ScreenTextBlock field = null;
+			while ((field = reader.readField()) != null && field.startRow() <=3 ) {
+				if (field.getString() != null && field.getString().trim().length() >= 10) {
+					return field.getString();
+				}
+			}
+			return null;
 		}
 
 		public void note(String note) {
@@ -277,16 +314,13 @@ public class TerminalRecorder {
 		}
 
 		public void inputInhibited(boolean inhibited) {
-			if(inhibited){
-				addText("inhibited, wait for not inhibited");
-			}
-			if(!inhibited){
-				addText("not inhibited");
-			}
+			//if(!inhibited){
+			//	addText("        driver.waitForInputNotInhibited(2000);");
+			//}
 		}
 		
 		public void cursorMoved(TerminalDriver driver, int row, int col) {
-			addText(String.format("Move cursor To %sx%s",row,col));
+			addText(String.format("        driver.getSession().getScreen().setCursor(%s, %s);",row,col));
 		}
 		
 	}
@@ -299,7 +333,7 @@ public class TerminalRecorder {
 			if(htmlLogChangeListener != null){
 				htmlLogChangeListener.note(note);
 			}
-			addText("//" + note);
+			addText("         //" + note);
 		}
 		
 	}

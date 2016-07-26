@@ -47,7 +47,7 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 			final String screenString = renderScreen(driver);
 			if (info != null) {
 				if (info.getScreenHtml().equals(screenString)) {
-					info.addText("Screen updated." + (driver.acceptingInput() ? "Accepting input" : "Input inhibited"));
+					info.addText(String.format("Screen updated.(%s,%s %sx%s)",row1,col1,row2-row1+1,col2-col1+1) + (driver.acceptingInput() ? "Accepting input" : "Input inhibited"));
 					return;
 				}
 				try {
@@ -57,13 +57,17 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 				}
 			}
 			info = new HTMLLogInfo(screenString, null);
-		}
+//		}
 		// If the screen was not accepting input when it changed, replace the
 		// log with when it does.
-		else if (screenChangePending && driver.acceptingInput()) {
-			screenChangePending = false;
-			info = new HTMLLogInfo(renderScreen(driver), info.getLogText());
+//		else if (screenChangePending && driver.acceptingInput()) {
+//			screenChangePending = false;
+//			info = new HTMLLogInfo(renderScreen(driver), info.getLogText());
 		} else {
+			if (screenChangePending && driver.acceptingInput()) {
+				screenChangePending = false;
+			}
+			info = new HTMLLogInfo(renderScreen(driver), info.getLogText());
 			if (info != null && !driver.acceptingInput()) {
 				//info.addText("Screen updated." + (driver.acceptingInput() ? "Accepting input" : "Input inhibited"));
 			}
@@ -106,8 +110,6 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 	}
 
 	public void inputInhibited(boolean inhibited) {
-		if (!inhibited)
-			info.addText("Input not inhibited.");
 	}
 	
 	public void cursorMoved(TerminalDriver driver, int row, int col){
