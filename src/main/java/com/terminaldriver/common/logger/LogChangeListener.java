@@ -43,11 +43,16 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 	public void screenPartialsUpdate(final TerminalDriver driver, final int row1, final int col1, final int row2,
 			final int col2) {
 
+		// if update is more than 5 lines assume its a window and do a screenChanged
+		if (Math.abs(col2 - col1) >=4 ){
+			screenChanged(driver);
+			return;
+		}
 		if (verbose) {
 			final String screenString = renderScreen(driver);
 			if (info != null) {
 				if (info.getScreenHtml().equals(screenString)) {
-					info.addText(String.format("Screen updated.(%s,%s %sx%s)",row1,col1,row2-row1+1,col2-col1+1) + (driver.acceptingInput() ? "Accepting input" : "Input inhibited"));
+					//screen updated but no change
 					return;
 				}
 				try {
@@ -63,11 +68,12 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 //		else if (screenChangePending && driver.acceptingInput()) {
 //			screenChangePending = false;
 //			info = new HTMLLogInfo(renderScreen(driver), info.getLogText());
+		
 		} else {
 			if (screenChangePending && driver.acceptingInput()) {
 				screenChangePending = false;
 			}
-			info = new HTMLLogInfo(renderScreen(driver), info.getLogText());
+			info = new HTMLLogInfo(renderScreen(driver), info==null?null:info.getLogText());
 			if (info != null && !driver.acceptingInput()) {
 				//info.addText("Screen updated." + (driver.acceptingInput() ? "Accepting input" : "Input inhibited"));
 			}
@@ -81,7 +87,7 @@ public abstract class LogChangeListener implements TerminalDriverChangeListener,
 		// is a single screen, and not multiples.
 		// Verbose prints all the steps.
 		if (!verbose && screenChangePending) {
-			info = new HTMLLogInfo(renderScreen(driver), info.getLogText());
+			info = new HTMLLogInfo(renderScreen(driver),  info==null?null:info.getLogText());
 			screenChangePending = !driver.acceptingInput();
 			return;
 		}
