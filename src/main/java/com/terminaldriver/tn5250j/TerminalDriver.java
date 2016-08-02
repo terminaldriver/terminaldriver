@@ -512,4 +512,8 @@ public class TerminalDriver implements Closeable {
 	public void addTerminalDriverChangeListener(final TerminalDriverChangeListener listener) {
 		listeners.add(listener);
 	}
+	
+	public void removeTerminalDriverChangeListener(final TerminalDriverChangeListener listener) {
+		listeners.remove(listener);
+	}
 }

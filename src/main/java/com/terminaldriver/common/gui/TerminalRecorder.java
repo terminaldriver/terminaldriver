@@ -37,6 +37,7 @@ import static com.terminaldriver.tn5250j.util.ScreenUtils.*;
  import javax.swing.JFileChooser;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -240,7 +241,9 @@ public class TerminalRecorder {
 			else{
 				try {
 					htmlLogChangeListener.screenChanged(terminalDriver);
-					terminalDriver.closeListeners();
+					//terminalDriver.closeListeners();
+					((Closeable)htmlLogChangeListener).close();
+					terminalDriver.removeTerminalDriverChangeListener(htmlLogChangeListener);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
