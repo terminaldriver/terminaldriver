@@ -32,24 +32,53 @@ public class MockScreenUtil {
 					int length, int plane)
 			{
 				if (plane ==PLANE_TEXT){
+					System.out.println(props.get("text"));
+					System.out.println(props.get("text").toString().replace((char)0, '0').replace(' ', '^'));
 					copy(props.get("text"),buffer);
 				}
 				if (plane ==PLANE_ATTR){
+					System.out.println(props.get("attr"));
+					System.out.println(props.get("attr").toString().replace((char)0, '0').replace((char)1, '1').replace((char)2, '2').replace((char)3, '3').replace((char)4, '4').replace(' ', '^'));
 					copy(props.get("attr"),buffer);
 				}
 				if (plane ==PLANE_IS_ATTR_PLACE){
+					String sb = props.get("isAttr").toString();
+					for(int i=0;i<10;i++){
+						sb= sb.replace((char)i, (char)(i + 48));
+					}
+					System.out.println(sb);
 					copy(props.get("isAttr"),buffer);
 				}
 				if (plane ==PLANE_COLOR){
+					String sb = props.get("color").toString();
+					for(int i=0;i<10;i++){
+						sb= sb.replace((char)i, (char)(i + 48));
+					}
+					System.out.println(sb);
 					copy(props.get("color"),buffer);
 				}
 				if (plane ==PLANE_EXTENDED){
+					String sb = props.get("extended").toString();
+					for(int i=0;i<10;i++){
+						sb= sb.replace((char)i, (char)(i + 48));
+					}
+					System.out.println("x:" + sb);
 					copy(props.get("extended"),buffer);
 				}
 				if (plane ==PLANE_EXTENDED_GRAPHIC){
+					String sb = props.get("graphic").toString();
+					for(int i=0;i<10;i++){
+						sb= sb.replace((char)i, (char)(i + 48));
+					}
+					System.out.println("g:" + sb);
 					copy(props.get("graphic"),buffer);
 				}
 				if (plane ==PLANE_FIELD){
+					String sb = props.get("field").toString();
+					for(int i=0;i<10;i++){
+						sb= sb.replace((char)i, (char)(i + 48));
+					}
+					System.out.println("f:" + sb);
 					copy(props.get("field"),buffer);
 				}
 				return bufferLength;

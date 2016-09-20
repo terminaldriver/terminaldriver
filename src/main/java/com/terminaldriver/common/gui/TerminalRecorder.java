@@ -197,7 +197,7 @@ public class TerminalRecorder {
 					e1.printStackTrace();
 				} 
 			}else{
-				int lastPos = sessionPanel.getScreen().getLastPos();
+				int lastPos = sessionPanel.getScreen().getCurrentPos();
 				ScreenField field = terminalDriver.getScreenFieldAt(lastPos);
 				if (field != null){
 					//textField.setText(textField.getText() + "field:" + field.getUnderlyingScreenField().toString() + "\n");

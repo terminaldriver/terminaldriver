@@ -31,7 +31,7 @@ public class BufferingTDChangeListener implements TerminalDriverChangeListener, 
 
 	public void sendKeys(final TerminalDriver driver, final String keys) {
 		if(keys.length()==1){
-			ScreenField field = driver.getScreenFieldAt(driver.getSession().getScreen().getLastPos());
+			ScreenField field = driver.getScreenFieldAt(driver.getSession().getScreen().getCurrentPos());
 			if(field != null && ScreenAttribute.getAttrEnum(field.getAttr().charAt(0)).isNonDisplay() ){
 				keyBuffer.append("*");
 			}else{
