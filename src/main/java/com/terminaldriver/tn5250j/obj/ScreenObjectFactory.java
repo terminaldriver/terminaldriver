@@ -94,7 +94,7 @@ public class ScreenObjectFactory {
 
 		if (info.row() > 0 && (currentScreenField == null || info.row() > currentScreenField.startRow())) {
 			for (final org.tn5250j.framework.tn5250.ScreenField screenField : screenFields) {
-				if (screenField.startRow() == info.row()) {
+				if (screenField.getStartRow() == info.row()) {
 					currentScreenField = new ScreenTextBlock(driver, " ", info.row() - 2, 80, 1, " ");
 				}
 			}

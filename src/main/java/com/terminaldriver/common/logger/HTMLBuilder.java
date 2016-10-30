@@ -71,6 +71,26 @@ public class HTMLBuilder {
 		public static class FieldInfo {
 
 		}
+		
+		public String getLogText() {
+			return logText;
+		}
+
+		public void setLogText(String logText) {
+			this.logText = logText;
+		}
+
+		public String getScreenHtml() {
+			return screenHtml;
+		}
+
+		public String getTestName() {
+			return testName;
+		}
+
+		public List<FieldInfo> getFields() {
+			return fields;
+		}
 	}
 
 	public void addLog(final HTMLLogInfo info) {
@@ -96,4 +116,6 @@ public class HTMLBuilder {
 		}
 		infos.add(info);
 	}
+	
+	
 }

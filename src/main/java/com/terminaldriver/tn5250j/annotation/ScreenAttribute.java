@@ -38,11 +38,10 @@ public enum ScreenAttribute {
 	PNK_UL_RI("=","Pink/Underscore/Reverse Image"),
 	BLU_UL(">","Blue/Underscore"),
 	ND_3F("?","Nondisplay");
-	@Getter
 	private String code;
-	@Getter
 	private String description;
-    private ScreenAttribute(final String code,final String desc){this.code = code; this.description=desc;}
+
+	private ScreenAttribute(final String code,final String desc){this.code = code; this.description=desc;}
     public String getColor(){
     	if(code != null && !"Nondisplay".equals(description)){
     		if(description.contains("Reverse")){
@@ -62,11 +61,17 @@ public enum ScreenAttribute {
     
 	public static ScreenAttribute getAttrEnum(final char currentAttr){
 		for (ScreenAttribute attr : ScreenAttribute.values()) {
-			if (attr.getCode() != null && currentAttr == attr.getCode().charAt(0)) {
+			if (attr.code != null && currentAttr == attr.code.charAt(0)) {
 				return attr;
 			}
 		}
 		return UNSET;
 	}
 	
+    public String getCode() {
+		return code;
+	}
+	public String getDescription() {
+		return description;
+	}
 }

@@ -119,7 +119,7 @@ public class ScreenUtils {
 		int currentIndex = 0;
 		while (currentIndex < screenFields.size()) {
 			// Forward to where current index is add
-			if (screenFields.get(currentIndex).endPos() > currentPositionParm) {
+			if (screenFields.get(currentIndex).getEndPos() > currentPositionParm) {
 				final ScreenField thisScreen = new ScreenField(driver, screenFields.get(currentIndex++));
 				// Make sure it matches
 				if (findMatches(info, thisScreen)) {

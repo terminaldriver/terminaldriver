@@ -46,10 +46,10 @@ public class JSONLogChangeListener extends LogChangeListener {
 			sb.append("{\"string\":\"").append(fld.getString()).append("\"");
 			sb.append(",\"fieldId\":").append(fld.getFieldId());
 			sb.append(",\"attr\":").append(fld.getAttr());
-			sb.append(",\"endPos\":").append(fld.endPos());
-			sb.append(",\"startCol\":").append(fld.startCol());
-			sb.append(",\"startRow\":").append(fld.startRow());
-			sb.append(",\"startPos\":").append(fld.startPos());
+			sb.append(",\"endPos\":").append(fld.getEndPos());
+			sb.append(",\"startCol\":").append(fld.getStartCol());
+			sb.append(",\"startRow\":").append(fld.getStartRow());
+			sb.append(",\"startPos\":").append(fld.getStartPos());
 			sb.append(",\"length\":").append(fld.getLength());
 			sb.append(",\"fieldLength\":").append(fld.getFieldLength());
 			sb.append(",\"FCW1\":").append(fld.getFCW1());

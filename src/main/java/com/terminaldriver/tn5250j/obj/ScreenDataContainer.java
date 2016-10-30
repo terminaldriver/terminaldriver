@@ -44,21 +44,21 @@ public class ScreenDataContainer implements TN5250jConstants {
 		field = new char[size];
 
 		if (size == screen.getScreenLength()) {
-			screen.GetScreen(text, size, PLANE_TEXT);
-			screen.GetScreen(attr, size, PLANE_ATTR);
-			screen.GetScreen(isAttr, size, PLANE_IS_ATTR_PLACE);
-			screen.GetScreen(color, size, PLANE_COLOR);
-			screen.GetScreen(extended, size, PLANE_EXTENDED);
-			screen.GetScreen(graphic, size, PLANE_EXTENDED_GRAPHIC);
-			screen.GetScreen(field, size, PLANE_FIELD);
+			screen.getScreen(text, size, PLANE_TEXT);
+			screen.getScreen(attr, size, PLANE_ATTR);
+			screen.getScreen(isAttr, size, PLANE_IS_ATTR_PLACE);
+			screen.getScreen(color, size, PLANE_COLOR);
+			screen.getScreen(extended, size, PLANE_EXTENDED);
+			screen.getScreen(graphic, size, PLANE_EXTENDED_GRAPHIC);
+			screen.getScreen(field, size, PLANE_FIELD);
 		} else {
-			screen.GetScreenRect(text, size, startRow, startCol, endRow, endCol, PLANE_TEXT);
-			screen.GetScreenRect(attr, size, startRow, startCol, endRow, endCol, PLANE_ATTR);
-			screen.GetScreenRect(isAttr, size, startRow, startCol, endRow, endCol, PLANE_IS_ATTR_PLACE);
-			screen.GetScreenRect(color, size, startRow, startCol, endRow, endCol, PLANE_COLOR);
-			screen.GetScreenRect(extended, size, startRow, startCol, endRow, endCol, PLANE_EXTENDED);
-			screen.GetScreenRect(graphic, size, startRow, startCol, endRow, endCol, PLANE_EXTENDED_GRAPHIC);
-			screen.GetScreenRect(field, size, startRow, startCol, endRow, endCol, PLANE_FIELD);
+			screen.getScreenRect(text, size, startRow, startCol, endRow, endCol, PLANE_TEXT);
+			screen.getScreenRect(attr, size, startRow, startCol, endRow, endCol, PLANE_ATTR);
+			screen.getScreenRect(isAttr, size, startRow, startCol, endRow, endCol, PLANE_IS_ATTR_PLACE);
+			screen.getScreenRect(color, size, startRow, startCol, endRow, endCol, PLANE_COLOR);
+			screen.getScreenRect(extended, size, startRow, startCol, endRow, endCol, PLANE_EXTENDED);
+			screen.getScreenRect(graphic, size, startRow, startCol, endRow, endCol, PLANE_EXTENDED_GRAPHIC);
+			screen.getScreenRect(field, size, startRow, startCol, endRow, endCol, PLANE_FIELD);
 		}
 	}
 

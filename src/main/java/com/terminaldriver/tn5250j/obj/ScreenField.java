@@ -16,7 +16,7 @@ public class ScreenField extends ScreenElement {
 
 	@Override
 	public int startRow() {
-		return screenField.startRow();
+		return screenField.getStartRow();
 	}
 
 	public org.tn5250j.framework.tn5250.ScreenField getUnderlyingScreenField() {
@@ -25,7 +25,7 @@ public class ScreenField extends ScreenElement {
 
 	@Override
 	public int startCol() {
-		return screenField.startCol();
+		return screenField.getStartCol();
 	}
 
 	@Override
@@ -35,12 +35,12 @@ public class ScreenField extends ScreenElement {
 
 	@Override
 	public int startPos() {
-		return screenField.startPos();
+		return screenField.getStartPos();
 	}
 
 	@Override
 	public int endPos() {
-		return screenField.endPos();
+		return screenField.getEndPos();
 	}
 
 	public int getFieldId() {

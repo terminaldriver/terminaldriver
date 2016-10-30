@@ -43,10 +43,10 @@ public class HTMLLogger {
 			cols = screen.getColumns();
 			screenChars = new String(screen.getScreenAsChars());
 			final char attr[] = new char[screenChars.length()];
-			screen.GetScreen(attr, attr.length, TN5250jConstants.PLANE_ATTR);
+			screen.getScreen(attr, attr.length, TN5250jConstants.PLANE_ATTR);
 			attributes = new String(attr);
 			final char isattr[] = new char[screenChars.length()];
-			screen.GetScreen(isattr, isattr.length, TN5250jConstants.PLANE_IS_ATTR_PLACE);
+			screen.getScreen(isattr, isattr.length, TN5250jConstants.PLANE_IS_ATTR_PLACE);
 			this.isattr = new boolean[screenChars.length()];
 			for(int i=0;i<this.isattr.length;i++){
 				this.isattr[i] = isattr[i] > 0;

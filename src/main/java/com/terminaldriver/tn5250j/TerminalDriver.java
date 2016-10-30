@@ -10,10 +10,9 @@ import java.util.List;
 import java.util.Properties;
 
 import org.tn5250j.Session5250;
-import org.tn5250j.event.ScreenListener;
+import org.tn5250j.api.screen.ScreenListener;
 import org.tn5250j.event.ScreenOIAListener;
 import org.tn5250j.event.SessionChangeEvent;
-import org.tn5250j.event.SessionKeysListener;
 import org.tn5250j.event.SessionListener;
 import org.tn5250j.framework.common.SessionManager;
 import org.tn5250j.framework.tn5250.Screen5250;
@@ -35,20 +34,14 @@ import lombok.Setter;
 
 public class TerminalDriver implements Closeable {
 
-	@Getter
-	@Setter
 	String codePage = "37";
 
-	@Getter
 	Session5250 session;
 
-	@Getter
 	String host;
 
-	@Getter
 	int port;
 
-	@Getter
 	KeyStrokes keys = new KeyStrokes(this);
 
 	final TerminalDriverSessionListener driverSessionListener = new TerminalDriverSessionListener();
@@ -56,8 +49,6 @@ public class TerminalDriver implements Closeable {
 	final TerminDriverScreenOIAListener driverScreenOIAListener = new TerminDriverScreenOIAListener();
 	final List<TerminalDriverChangeListener> listeners = new ArrayList<TerminalDriverChangeListener>();
 	long markedUpdate;
-
-	private SessionKeysListener driverSessionKeysListener = new TerminalDriverSessionKeysListener();;
 
 	public TerminalDriver() {
 		super();
@@ -105,7 +96,6 @@ public class TerminalDriver implements Closeable {
 		session.addSessionListener(driverSessionListener);
 
 		session.getScreen().addScreenListener(driverScreenListener);
-		session.getScreen().addSessionKeysListener(driverSessionKeysListener);
 		session.getScreen().getOIA().addOIAListener(driverScreenOIAListener);
 		session.connect();
 
@@ -121,8 +111,6 @@ public class TerminalDriver implements Closeable {
 	public void setSession(Session5250 session){
 		this.session=session;
 		session.addSessionListener(driverSessionListener);
-		session.getScreen().addSessionKeysListener(driverSessionKeysListener);
-
 		session.getScreen().addScreenListener(driverScreenListener);
 		session.getScreen().getOIA().addOIAListener(driverScreenOIAListener);
 	}
@@ -340,7 +328,7 @@ public class TerminalDriver implements Closeable {
 	
 	public ScreenField getScreenFieldAt(final int row, final int col) {
 		for (final org.tn5250j.framework.tn5250.ScreenField field : getRawScreenFields()) {
-			if(field.startRow() == row && field.startCol()>=col && field.startCol()+field.getLength() >= col){
+			if(field.getStartRow() == row && field.getStartCol()>=col && field.getStartCol()+field.getLength() >= col){
 				return new ScreenField(this, field);
 			}
 		}
@@ -349,7 +337,7 @@ public class TerminalDriver implements Closeable {
 	
 	public ScreenField getScreenFieldAt(final int pos) {
 		for (final org.tn5250j.framework.tn5250.ScreenField field : getRawScreenFields()) {
-			if(field.startPos() <= pos && field.endPos() >= pos){
+			if(field.getStartPos()<= pos && field.getEndPos() >= pos){
 				return new ScreenField(this, field);
 			}
 		}
@@ -360,21 +348,6 @@ public class TerminalDriver implements Closeable {
 		return Arrays.asList(session.getScreen().getScreenFields().getFields());
 	}
 
-	public class TerminalDriverSessionKeysListener implements SessionKeysListener {
-
-		public void fieldStringSet(Screen5250 arg0, org.tn5250j.framework.tn5250.ScreenField screenField, String value) {
-			fireFieldSetString(screenField,value);
-		}
-
-		public void keysSent(Screen5250 arg0, String keys) {
-			fireSendKeys(keys);
-		}
-
-		public void cursorMoved(Screen5250 arg0, int pos) {
-			fireCursorMoved(pos);
-		}
-		
-	}
 	public class TerminalDriverScreenListener implements ScreenListener {
 
 		@Setter
@@ -385,6 +358,10 @@ public class TerminalDriver implements Closeable {
 		 */
 		@Getter
 		long lastScreenChange;
+		public long getLastScreenChange() {
+			return lastScreenChange;
+		}
+
 		/**
 		 * Time in milliseconds of the last time the screen was partially
 		 * updated
@@ -432,6 +409,14 @@ public class TerminalDriver implements Closeable {
 				sleep(100);
 			}
 			return false;
+		}
+
+		public void onCursorMoved(Screen5250 arg0, int pos) {
+			fireCursorMoved(pos);
+		}
+
+		public void onKeysSent(Screen5250 arg0, String keys) {
+			fireSendKeys(keys);
 		}
 	}
 
@@ -516,4 +501,29 @@ public class TerminalDriver implements Closeable {
 	public void removeTerminalDriverChangeListener(final TerminalDriverChangeListener listener) {
 		listeners.remove(listener);
 	}
+
+	public String getCodePage() {
+		return codePage;
+	}
+
+	public void setCodePage(String codePage) {
+		this.codePage = codePage;
+	}
+
+	public Session5250 getSession() {
+		return session;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public KeyStrokes getKeys() {
+		return keys;
+	}
+	
 }
