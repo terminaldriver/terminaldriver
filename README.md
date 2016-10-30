@@ -34,12 +34,13 @@ To use with maven:
      public void testApp() throws Exception
     {
 	 
-        TerminalDriver driver = new TerminalDriver();
-        driver.connectTo("server", 23);
-        driver.dumpScreen();
-		
-		    Login login = ScreenObjectFactory.createPage(Login.class, driver);
-		}
+        	TerminalDriver driver = new TerminalDriver();
+        	driver.connectTo("server", 23);
+        	driver.dumpScreen();
+
+		Login login = ScreenObjectFactory.createPage(Login.class, driver);
+		MainMenu mainmenu = login.login("JOHNDOE","mysecret");
+	}
 		
 Example Page Object:	
 		
